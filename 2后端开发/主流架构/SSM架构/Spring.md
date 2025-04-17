@@ -1,6 +1,6 @@
 # Spring
 
-## 一.Spring简介
+## 一、Spring简介
 
 Spring是分层的 Java SE/EE应用 full-stack（全栈的） 轻量级开源框架，以 **IOC**（Inverse Of Control：控制反转）和 **AOP**（Aspect Oriented Programming：面向切面编程）为内核。
 
@@ -27,7 +27,7 @@ Spring对JaveEE API（如JDBC、JavaMail、远程调用等）进行了薄薄的�
 * Java 源码是经典学习范例
 Spring的源代码设计精妙、结构清晰、匠心独用，处处体现着大师对Java 设计模式灵活运用以及对Java技术的高深造诣。它的源代码无意是Java技术的最佳实践的范例
 
-## 二.搭建开发环境
+## 二、搭建开发环境
 
 ### 1.开发环境
 
@@ -39,18 +39,42 @@ IDEA
 
 ### 3.创建Spring的配置文件
 
-## 三.IoC/DI
+Spring分模块开发的配置
 
-### 1. 控制反转IoC
++ 加载配置文件时，直接加载多个配置文件
+
+```java
+ApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext1.xml", "applicationContext2.xml");
+```
+
++ 在一个配置文件中引入多个配置文件
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--引入配置文件-->
+	<import resource="applicationContext2.xml"/>
+    
+</beans>
+```
+
+
+
+## 三、控制反转IoC/依赖注入DI
+
+### 1. IoC（Inversion of Controll）
 
 控制反转是一种思想
 
 将对象的创建权利交出去，交给第三方容器负责
 将对象和对象之间的关系维护权交出去，交给第三方容器负责
 
-通过依赖注入DI的方式实现
+**思想是反转资源获取的方向**，传统的资源查找方式要求组件向容器发起请求查找资源。作为回应，容器适时的返回资源。而应用了IOC之后，则是**容器主动的将资源推送给它所管理的组件，组件所要做的仅是选择一种合适的方式来接收资源**
 
-### 2. 依赖注入DI
+### 2. DI(Dependency Injection)
 
 依赖注入DI （Dependency Injection）实现了控制反转的思想，是指Spring创建对象的过程中，将对象依赖属性通过配置进行注入
 
@@ -82,2745 +106,2154 @@ FileSystemApplicationContext	通过文件系统路径读取xml格式配置文件
 
 ### 4. 基于XML管理bean
 
-4.1 环境准备
-① 创建子工程 spring-ioc-xml
+Spring的属性注入方式
 
-② pom.xml中引入spring依赖，并刷新maven
+#### 构造方法方式的属性注入
 
-<dependencies>
-    <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-context</artifactId>
-        <version>5.3.24</version>
-    </dependency>
-</dependencies>
-③ 创建spring配置文件：resources/bean.xml
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!--构造方法方式的属性注入-->
+    <bean id="car" class="learningspring.ioc.examples.demo3.Car">
+        <constructor-arg name="name" value="BWM"/>
+        <constructor-arg name="price" value="800000"/>
+    </bean>
+</beans>
+```
 
+#### Set方法方式的属性注入
 
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-④ 在工程目录java下创建类 cn.tedu.spring.iocxml.User
+    <!--Set方法方式的属性注入-->
+    <bean id="dog" class="learningspring.ioc.examples.demo3.Dog">
+        <property name="name" value="Golden"/>
+        <property name="length" value="100"/>
+    </bean>
+</beans>
+```
 
-public class User {
-    private String username;
-    private String password;
+#### 为Bean注入引用类型的数据
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!--构造方法方式的属性注入-->
+    <bean id="car" class="learningspring.ioc.examples.demo3.Car">
+        <constructor-arg name="name" value="BWM"/>
+        <constructor-arg name="price" value="800000"/>
+    </bean>
+
+    <!--Set方法方式的属性注入-->
+    <bean id="dog" class="learningspring.ioc.examples.demo3.Dog">
+        <property name="name" value="Golden"/>
+        <property name="length" value="100"/>
+    </bean>
+
+    <!--为Bean注入对象属性-->
+    <!--构造方法方式一样可行-->
+    <bean id="employee" class="learningspring.ioc.examples.demo3.Employee">
+        <property name="name" value="Chen"/>
+        <property name="car" ref="car"/>
+        <property name="dog" ref="dog"/>
+    </bean>
+</beans>
+```
+
+#### P名称空间的属性注入（Spring2.5）
+
++ 通过引入p名称空间完成属性注入
+  + 普通属性：p:属性名=“值”
+  + 对象属性：p:属性名-ref=“值”
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--P名称空间的属性注入-->
+    <bean id="cat" class="learningspring.ioc.examples.demo3.Cat" p:name="Orange" p:length="100"/>
     
-    public void userMethod(){
-        System.out.println("userMethod执行~~");
+    <!--为Bean注入对象属性-->
+    <bean id="employee" class="learningspring.ioc.examples.demo3.Employee" p:cat-ref="cat">
+        <property name="name" value="Chen"/>
+        <property name="car" ref="car"/>
+        <property name="dog" ref="dog"/>
+    </bean>
+</beans>
+```
+
+#### 不同类型数据的注入
+
+### 注入集合类型的数据
+
+```java
+/**
+ * 注入集合类型的数据测试
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
+public class CollectionBean {
+
+    private String[] strs;
+    private List<String> list;
+    private Set<String> set;
+    private Map<String, String> map;
+
+    public void setStrs(String[] strs) {
+        this.strs = strs;
     }
-4.2 获取bean方式
-根据id获取
 
-id属性是bean的唯一标识，所以根据bean标签的id属性可以精确获取到一个组件对象。
-
-① bean.xml
-
-<bean id="user" class="cn.tedu.spring.iocxml.User"></bean>
-② 创建测试类UserTest
-
-public class UserTest {
-
-    public static void main(String[] args) {
-        // 1.加载配置文件
-        ApplicationContext context = new ClassPathXmlApplicationContext("bean.xml");
-        // 2.根据id获取bean
-        User user1 = (User) context.getBean("user");
-        System.out.println("1-根据id获取对象:" + user1);
-        user1.userMethod();
+    public void setList(List<String> list) {
+        this.list = list;
     }
 
-根据类型获取
-
-User user2 = context.getBean(User.class);
-System.out.println("2-根据类型获取bean:" + user2);
-user2.userMethod();
-根据id和类型获取
-
-User user3 = context.getBean("user", User.class);
-System.out.println("3-根据id和类型获取bean：" + user3);
-user3.userMethod();
-注意
-
-当根据类型获取bean时，要求IoC容器中指定类型的bean只能有一个，当配置两个时会抛出异常
-
-<bean id="user" class="cn.tedu.spring.iocxml.User"></bean>
-<bean id="user2" class="cn.tedu.spring.iocxml.User"></bean>
-
-
-
-4.3 基于setter依赖注入
-类有属性，创建对象过程中，向属性注入具体的值
-
-方式1：使用set方法完成（使用xml中的标签实现）
-
-方式2：基于构造器完成
-
-案例
-
-① 创建Package名为dibase，创建Book类
-
-package cn.tedu.spring.DI;
-
-public class Book {
-    private String bookName;
-    private String bookAuthor;
-
-    // 无参构造函数
-    public Book() {}
-    
-    // 全参构造函数
-    public Book(String bookName, String bookAuthor) {
-        this.bookName = bookName;
-        this.bookAuthor = bookAuthor;
+    public void setSet(Set<String> set) {
+        this.set = set;
     }
-    
-    public String getBookName() {
-        return bookName;
+
+    public void setMap(Map<String, String> map) {
+        this.map = map;
     }
-    
-    public void setBookName(String bookName) {
-        this.bookName = bookName;
-    }
-    
-    public String getBookAuthor() {
-        return bookAuthor;
-    }
-    
-    public void setBookAuthor(String bookAuthor) {
-        this.bookAuthor = bookAuthor;
-    }
-    
+
     @Override
     public String toString() {
-        return "Book{" +
-                "bookName='" + bookName + '\'' +
-                ", bookAuthor='" + bookAuthor + '\'' +
+        return "CollectionBean{" +
+                "strs=" + Arrays.toString(strs) +
+                ", list=" + list +
+                ", set=" + set +
+                ", map=" + map +
                 '}';
     }
 }
-2② 创建spring配置文件：resources目录下创建 bean-di.xml
 
-<!-- set方法注入 -->
-<bean id="book" class="cn.tedu.spring.DI.Book">
-    <!--2.使用property标签注入-->
-    <property name="bookName" value="java"></property>
-    <property name="bookAuthor" value="tedu"></property>
-</bean>
-③ 创建测试类TestBook进行测试
+```
 
-public class BookTest {
-    // spring的set方法注入
-    @Test
-    public void springSetTest(){
-        ApplicationContext context = new ClassPathXmlApplicationContext("bean-di.xml");
-        Book book = context.getBean("book", Book.class);
-        System.out.println("book = " + book);
-    }
-}
-4.4 基于构造器依赖注入
-说明
 
-通过构造器方式实现依赖注入
 
-操作步骤说明
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-创建类，定义属性，生成有参数构造方法
-进行xml配置
-创建测试类测试
-① 创建电影信息类Film，定义属性并生成全参构造方法
+    <!--Spring的集合属性的注入-->
+    <!--注入数组类型-->
+    <bean id="collectionBean" class="learningspring.ioc.examples.demo4.CollectionBean">
+        <!-- 注入数组类型 -->
+        <property name="strs">
+            <list>
+                <value>Tom</value>
+                <value>Jack</value>
+            </list>
+        </property>
 
-public class Film {
-    // 电影名称、主演
-    private String title;
-    private String actor;
+        <!-- 注入List集合 -->
+        <property name="list">
+            <list>
+                <value>Lucy</value>
+                <value>Lily</value>
+            </list>
+        </property>
 
-    // 全参构造
-    public Film(String title, String actor) {
-        System.out.println("Film的有参构造已经执行~~");
-        this.title = title;
-        this.actor = actor;
-    }
-    
-    public String getTitle() {
-        return title;
-    }
-    
-    public void setTitle(String title) {
-        this.title = title;
-    }
-    
-    public String getActor() {
-        return actor;
-    }
-    
-    public void setActor(String actor) {
-        this.actor = actor;
-    }
-    
+        <!-- 注入Set集合 -->
+        <property name="set">
+            <set>
+                <value>aaa</value>
+                <value>bbb</value>
+                <value>ccc</value>
+            </set>
+        </property>
+
+        <!-- 注入Map集合 -->
+        <property name="map">
+            <map>
+                <entry key="a" value="1"/>
+                <entry key="b" value="2"/>
+            </map>
+        </property>
+    </bean>
+</beans>
+```
+
+### 5.基于注解管理bean
+
+Spring开发中的常用注解
+
+#### @Component
+
+该注解在类上使用，使用该注解就相当于在配置文件中配置了一个Bean，例如：
+
+```java
+@Component("userDao")
+public class UserDaoImpl implements UserDao {
     @Override
-    public String toString() {
-        return "Film{" +
-                "title='" + title + '\'' +
-                ", actor='" + actor + '\'' +
-                '}';
-    }
-② 在bean-di.xml中进行注入配置
-
-<!-- 构造器注入演示：Film类 -->
-<bean id="film" class="cn.tedu.spring.DI.Film">
-    <constructor-arg name="title" value="霸王别姬"></constructor-arg>
-    <constructor-arg name="actor" value="张国荣"></constructor-arg>
-</bean>
-③ 创建测试类TestFilm测试
-
-public class FilmTest {
-
-    @Test
-    public void FilmConsDITest(){
-        // 1.加载配置文件
-        ApplicationContext context = new ClassPathXmlApplicationContext("bean-di.xml");
-        // 2.获取指定bean
-        Film film = context.getBean("film", Film.class);
-        // 3.输出测试
-        System.out.println("film = " + film);
+    public void save() {
+        System.out.println("UserDaoImpl.save");
     }
 }
-4.5 特殊值处理注入
-4.5.1 字面量赋值
-string number = 10;
+```
 
-声明一个变量number，初始化为 10，此时number就不代表字符number了，而是作为一个变量的名字。当引用number时，实际拿到的结果是 10。
+相当于以下内容：
 
-而如果number是带引号的 “number” ，则它不是一个变量，而代表 number 本身这个字符串。
+```xml
+<bean id="userDao" class="learningspring.ioc.examplesannotation.demo1.UserDaoImpl"></bean>
+```
 
-这就是字面量，所以字面量没有引申含义，就是我们看到的这个数据本身。
+该注解有3个衍生注解：
 
-<!-- 使用value属性给bean的属性赋值时，spring会把value的属性值看作是字面量 -->
-<property name="number" value="1016"></property>
-4.5.2 null值
-使用 标签，或者 标签 实现注入。
++ **@Controller：修饰Web 层类**
++ **@Service：修饰Service层类**
++ **@Repository：修饰Dao层类**
 
-① Film类中增加电影描述属性
+#### @Value
 
-// 1.电影描述
-private String description;
-// 2.生成对应的 set() get() 方法，重新生成toString()方法
-// 3.重新生成全参构造方法
-② bean-di.xml配置文件调整
+该注解用于给属性注入值，有2种用法
 
-<!-- 构造器注入演示：Film类 -->
-<bean id="film" class="cn.tedu.spring.DI.Film">
-    <constructor-arg name="title" value="霸王别姬"></constructor-arg>
-    <constructor-arg name="actor" value="张国荣"></constructor-arg>
-    <!-- 电影描述注入空值null -->
-    <constructor-arg name="description">
-        <null></null>
-    </constructor-arg>
-</bean>
-③ 执行测试类进行测试
++ 如果有set方法，则需要将该注解添加到set方法上
++ 如果没有set方法，则需要将该注解添加到属性上
 
-课堂练习
+```java
+/**
+ * Value 注解用于属性注入
+ * 当类有提供set方法时添加在set方法上
+ * 如果没有，则添加到属性上
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
 
-cn.tedu.spring下创建包exercise，在包下创建商品表 Product，类属性如下：
-
-商品标题：title
-
-商品库存：num
-
-商品销量：sales
-
-商品描述：comment
-
-实现 商品Product类的创建，setter() getter() toString()，
-
-通过配置文件bean-product.xml
-
-通过set方式注入一组数据（商品描述为null值）；
-
-通过构造参数方式注入一组数据（商品描述为null值）；
-
-创建测试类TestProduct进行测试。
-
-练习答案
-
-① Product类
-
-public class Product {
-    private String title;
-    private Integer num;
-    private Integer sales;
-    private String comment;
-    // 无参构造函数、有参构造函数  setter() getter() toString() 
-}
-② bean-product.xml
-
-<!-- set方法注入 -->
-<bean id="product" class="cn.tedu.spring.exercise.Product">
-    <property name="title" value="手机"></property>
-    <property name="num" value="100"></property>
-    <property name="sales" value="1000"></property>
-    <property name="comment">
-        <null></null>
-    </property>
-</bean>
-
-<!-- 构造参数方法注入 -->
-<bean id="productCons" class="cn.tedu.spring.exercise.Product">
-    <constructor-arg name="title" value="电脑"/>
-    <constructor-arg name="num" value="2"/>
-    <constructor-arg name="sales" value="3"/>
-    <constructor-arg name="comment">
-        <null></null>
-    </constructor-arg>
-</bean>
-③ ProductTest测试类
-
-@Test
-public void testProduct(){
-    ApplicationContext context = new ClassPathXmlApplicationContext("bean-product.xml");
-    Product product = context.getBean("product", Product.class);
-    System.out.println("product = " + product);
-}
-
-4.5.3 xml实体
-说明
-
-< > 小于号、大于号在XML文档中用来定义标签的开始，具有特殊含义，在注入属性值时不能够随便使用，
-
-可以使用XML实体 &lt; &gt; 来代替
-
-表示方式
-
-普通字符	xml实体
-
-<!-- xml实体 -->
-<bean id="filmEntity" class="cn.tedu.spring.DI.Film">
-    <constructor-arg name="title" value="霸王别姬"></constructor-arg>
-    <constructor-arg name="actor" value="张国荣"></constructor-arg>
-    <!--xml实体表示-->
-    <constructor-arg name="description" value="&lt;真好看啊电影&gt;"></constructor-arg>
-</bean>
-4.5.4 CDATA区
-CDATA区，是xml中一种特有的写法，在CDATA区中可以包含特殊符号
-
-表示方式：
-
- <![CDATA[内容]]> ，在内容区域可以存放普通字符和特殊符号
-
-CDATA区存放特殊符号演示
-
-<!-- xml实体-CDATA区 -->
-<bean id="filmCdata" class="cn.tedu.spring.DI.Film">
-    <constructor-arg name="title" value="霸王别姬"></constructor-arg>
-    <constructor-arg name="actor" value="张国荣"></constructor-arg>
-    <!--xml实体表示-->
-    <constructor-arg name="description">
-        <!-- CDATA区存放数据，可通过 CD + Tab键自动补全格式 -->
-        <value><![CDATA[<真好看啊>]]></value>
-    </constructor-arg>
-</bean>
-4.6 对象类型属性注入
-需要注入的数据类型为对象，而不是一个字面量。
-
-环境准备
-
-准备一个一对多案例，比如部门Dept和员工Emp是一对多的关系。
-
-① 创建包diobj，并创建部门类Dept
-
-public class Dept {
-    // 部门名称
-    private String dName;
-
-    // 定义方法，用于测试输出
-    public void deptFunc(){
-        System.out.println("Dept部门名称：" + dName);
-    }
-    
-    public void setdName(String dName) {
-        this.dName = dName;
-    }
-    
-    public String getdName() {
-        return dName;
-    }
-    
-    @Override
-    public String toString() {
-        return "Dept{" +
-                "dName='" + dName + '\'' +
-                '}';
-    }
-}
-② 创建员工类Emp，创建setter() getter() 和 toString()方法
-
-public class Emp {
-    // 员工所属部门的对象、姓名、工资
-    private Dept dept;
-    private String eName;
-    private Double salary;
-
-    // 定义方法测试
-    public void work(){
-        System.out.println(eName + "薪资:" + salary);
-        dept.deptFunc();
-    }
-    
-    public void setDept(Dept dept) {
-        this.dept = dept;
-    }
-    
-    public void seteName(String eName) {
-        this.eName = eName;
-    }
-    
-    public void setSalary(Double salary) {
-        this.salary = salary;
-    }
-    
-    public Dept getDept() {
-        return dept;
-    }
-    
-    public String geteName() {
-        return eName;
-    }
-    
-    public Double getSalary() {
-        return salary;
-    }
-    
-    @Override
-    public String toString() {
-        return "Emp{" +
-                "dept=" + dept +
-                ", eName='" + eName + '\'' +
-                ", salary=" + salary +
-                '}';
-    }
-
-4.6.1 引用外部bean
-说明：
-
- 可以通过在当前bean标签中通过 ref属性引用外部bean的方式实现。
-
-
-
-示例：通过使用外部bean方式，在员工中注入部门对象
-
-① 配置文件 bean-diobj.xml
-
-<!--在Emp中注入Dept
-    方式1：引用外部bean
-        1.创建两个类对象：dept 和 emp
-        2.在emp的bean标签中，通过property标签注入dept的bean
-    -->
-<bean id="dept1" class="cn.tedu.spring.diobj.Dept">
-    <property name="dName" value="开发部"></property>
-</bean>
-
-<bean id="emp1" class="cn.tedu.spring.diobj.Emp">
-    <!-- 普通属性注入 -->
-    <property name="eName" value="张三丰"></property>
-    <property name="salary" value="50000.0"></property>
-    <!-- 对象类型注入，使用ref属性 -->
-    <property name="dept" ref="dept1"></property>
-</bean>
-② 创建测试类测试 TestDept
-
-public class TestDept {
-
-    // 对象类型注入测试用例
-    @Test
-    public void testObjDI(){
-        // 1.加载xml配置文件
-        ApplicationContext context = new ClassPathXmlApplicationContext("bean-diobj.xml");
-        // 2.获取bean对象
-        Emp emp1 = context.getBean("emp1", Emp.class);
-        // 3.测试(调用员工emp对象的方法)
-        System.out.println("emp1 = " + emp1);
-        emp1.work();
-    }
-}
-4.6.2 内部bean
-在需要注入对象的bean标签中内嵌 对象类型属性的 bean标签即可。
-
-
-
- 内嵌bean
-
-
-
-① bean-diobj.xml进行属性注入配置
-
-<!--在Emp中注入Dept
-        方式2：引用内部bean
-            在emp的bean标签中，通过内嵌部门bean标签方式实现
-        -->
-<bean id="emp2" class="cn.tedu.spring.diobj.Emp">
-    <property name="eName" value="张无忌"/>
-    <property name="salary" value="8000.0"/>
-    <!--对象注入-->
-    <property name="dept">
-        <bean id="dept2" class="cn.tedu.spring.diobj.Dept">
-            <property name="dName" value="销售部"/>
-        </bean>
-    </property>
-</bean>
-
-② 使用测试类测试
-
-// 对象类型注入：内嵌bean
-@Test
-public void testObjDi2(){
-    ApplicationContext context = new ClassPathXmlApplicationContext("bean-diobj.xml");
-    Emp emp2 = context.getBean("emp2", Emp.class);
-    System.out.println("emp2 = " + emp2);
-    emp2.work();
-}
-
-4.6.3 级联属性赋值（了解）
-可以在标签中给需要注入对象的属性重新赋值！
-
-① 配置文件编写
-
-<!--方式3：级联属性(需要注入的属性)赋值-->
-<bean id="dept3" class="cn.tedu.spring.diobj.Dept">
-    <property name="dName" value="市场部"/>
-</bean>
-
-<bean id="emp3" class="cn.tedu.spring.diobj.Emp">
-    <!-- 普通属性注入 -->
-    <property name="eName" value="赵敏"/>
-    <property name="salary" value="5000.0"/>
-    <!-- 对象类型注入 -->
-    <property name="dept" ref="dept3"/>
-    <!-- 级联属性(Dept)赋值 -->
-    <property name="dept.dName" value="客服部"></property>
-</bean>
-
-② 测试类测试
-
-// 对象类型注入：级联属性赋值
-@Test
-public void testObjDi3(){
-    ApplicationContext context = new ClassPathXmlApplicationContext("bean-diobj.xml");
-    Emp emp3 = context.getBean("emp3", Emp.class);
-    System.out.println("emp3 = " + emp3);
-    emp3.work();
-}
-
-4.7 数组类型属性注入
-使用 标签和子标签实现。
-
-说明：一个人除了姓名、年龄等属性外，还会有爱好，一个人的爱好可能有多个，可以把多个爱好存入数组中。
-
-创建包：cn.tedu.spring.diarray
-
-① 在diarray包中创建类：Person
-
-public class Person {
-    // 姓名、年龄、爱好
+@Component("dog")
+public class Dog {
     private String name;
-    private String age;
-    private String[] hobby;
 
-    // 定义测试方法
-    public void run(){
-        System.out.println("Persen is running...");
-        // 打印数组测试
-        System.out.println(Arrays.toString(hobby));
+    @Value("100") // 注入属性值
+    private Double length;
+
+    public Dog() {
     }
-    
+
+    public Dog(String name, Double length) {
+        this.name = name;
+        this.length = length;
+    }
+
     public String getName() {
         return name;
     }
-    
+
+    @Value("Golden") // 注入属性值
     public void setName(String name) {
         this.name = name;
     }
-    
-    public String getAge() {
-        return age;
-    }
-    
-    public void setAge(String age) {
-        this.age = age;
-    }
-    
-    public String[] getHobby() {
-        return hobby;
-    }
-    
-    public void setHobby(String[] hobby) {
-        this.hobby = hobby;
-    }
-    
+
     @Override
     public String toString() {
-        return "Person{" +
+        return "Dog{" +
                 "name='" + name + '\'' +
-                ", age='" + age + '\'' +
-                ", hobby=" + Arrays.toString(hobby) +
-                '}';
-    }
-}
-② 新建配置文件：bean-diarray.xml 进行注入
-
-<!-- 创建Person对象并注入属性 -->
-<bean id="person" class="cn.tedu.spring.diarray.Person">
-    <!-- 普通属性注入 -->
-    <property name="name" value="孙悟空"/>
-    <property name="age" value="36"/>
-    <!-- 数组属性注入，使用<array>标签 -->
-    <property name="hobby">
-        <array>
-            <value>抽烟</value>
-            <value>喝酒</value>
-            <value>烫头</value>
-        </array>
-    </property>
-</bean>
-
-③ 编写测试类TestPerson测试
-
-public class TestPerson {
-
-    // 数组注入测试用例
-    @Test
-    public void testArray(){
-        ApplicationContext context = new ClassPathXmlApplicationContext("bean-diarray.xml");
-        Person person = context.getBean("person", Person.class);
-        System.out.println("person = " + person);
-        person.run();
-    }
-}
-
-4.8 集合类型属性注入
-4.8.1 List集合属性注入
-场景1：使用 标签下的 子标签和 子标签实现。
-
-场景2：使用 标签下的 子标签和子标签实现。ref标识引用其他的bean
-
-环境说明：创建老师类Student和学生类Student，一个老师可以有多个学生，在老师类中存入所教学生的对象，将其存入List集合中。
-
-环境准备
-
-① 创建包 dimap
-
-② Teacher类
-
-public class Teacher {
-
-    // 老师姓名
-    private String tName;
-    // 老师所教学生的对象，放到List集合中
-    private List<Student> studentList;
-    
-    public String gettName() {
-        return tName;
-    }
-    
-    public void settName(String tName) {
-        this.tName = tName;
-    }
-    
-    public List<Student> getStudentList() {
-        return studentList;
-    }
-    
-    public void setStudentList(List<Student> studentList) {
-        this.studentList = studentList;
-    }
-    
-    @Override
-    public String toString() {
-        return "Teacher{" +
-                "tName='" + tName + '\'' +
-                ", studentList=" + studentList +
-                '}';
-    }
-}
-③ Student类
-
-public class Student {
-    // 学生姓名、年龄
-    private String sName;
-    private String age;
-
-    public String getsName() {
-        return sName;
-    }
-    
-    public void setsName(String sName) {
-        this.sName = sName;
-    }
-    
-    public Integer getAge() {
-        return age;
-    }
-    
-    public void setAge(Integer age) {
-        this.age = age;
-    }
-    
-    @Override
-    public String toString() {
-        return "Student{" +
-                "sName='" + sName + '\'' +
-                ", course='" + course + '\'' +
+                ", length=" + length +
                 '}';
     }
 }
 
-④ 创建配置文件：bean-dilistmap.xml 进行注入
+```
 
-<!-- 创建2个Student对象，用于Teacher对象的注入 -->
-<bean id="stu1" class="cn.tedu.spring.dimap.Student">
-    <property name="sName" value="梁山伯"/>
-    <property name="age" value="43"/>
-</bean>
-<bean id="stu2" class="cn.tedu.spring.dimap.Student">
-    <property name="sName" value="祝英台"/>
-    <property name="age" value="33"/>
-</bean>
+#### @Autowired
 
-<!-- 创建Teacher类的bean对象，并注入属性 -->
-<bean id="teacher" class="cn.tedu.spring.dimap.Teacher">
-    <!-- 普通属性注入 -->
-    <property name="tName" value="沙师弟"/>
-    <!-- List集合属性注入 -->
-    <property name="studentList">
-        <list>
-            <ref bean="stu1"/>
-            <ref bean="stu2"/>
-        </list>
-    </property>
-</bean>
-⑤ 测试类TestTeacher测试
+`@Value` 通常用于普通属性的注入。
 
-public class TestTeacher {
+`@Autowired` 通常用于为对象类型的属性注入值，但是按照**类型**完成属性注入
 
-    @Test
-    public void testListMap(){
-        ApplicationContext context = new ClassPathXmlApplicationContext("bean-dilistmap.xml");
-        Teacher teacher = context.getBean("teacher", Teacher.class);
-        System.out.println("teacher = " + teacher);
-    
-        List<Student> list = teacher.getStudentList();
-        for (Student student: list) {
-            System.out.println(student);
-        }
-    }
-}
-4.8.2 Map集合属性注入
-使用标签下的 子标签、子标签、子标签 子标签 子标签实现
+习惯是按照**名称**完成属性注入，所以必须让`@Autowired`注解和`@Qualifier`注解**一同使用**。
 
-<bean id="xxx" class="xxx">
-	<property name="xxx">
-        <map>
-            <!-- 第1条数据-字面量值演示 -->
-			<entry>
-            	<key><value>xxx</value></key>
-                <value>xxx</value>
-            </entry>
-            <!-- 第2条数据-对象演示 -->
-			<entry>
-            	<key><value>xxx</value></key>
-                <ref bean="xxx"></ref>
-            </entry>
-        </map>
-​	</property>
-</bean>
-说明：使用上述的老师类和学生类，一个学生也可以有多个老师，在学生类Student中添加老师的属性，放到Map集合中。
+（如果没有`@Qualifier`注解，修改以下例子中`@Repository`注解的值，也能编译成功）
 
-① 调整Student类
-
-// 1.学生的老师：可以有多个，放到Map集合中
-private Map<String,String> teacherMap;
-
-// 2.生成setter() getter()方法，重新生成toString()方法
-② 创建配置文件：bean-dimap.xml
-
-<!--Map集合属性注入-->
-<bean id="stuMap" class="cn.tedu.spring.dilistmap.Student">
-    <property name="sName" value="步惊云"/>
-    <property name="age" value="36"/>
-    <property name="teacherMap">
-        <map>
-            <entry>
-                <key>
-                    <value>1111</value>
-                </key>
-                <value>雄霸</value>
-            </entry>
-            <entry>
-                <key>
-                    <value>2222</value>
-                </key>
-                <value>断浪</value>
-            </entry>
-            <entry>
-                <key>
-                    <value>3333</value>
-                </key>
-                <value>大空翼</value>
-            </entry>
-        </map>
-    </property>
-</bean>
-③ 创建测试类进行测试 TestMap
-
-@Test
-public void testMap(){
-    ApplicationContext context = new ClassPathXmlApplicationContext("bean-dimap.xml");
-    Student student = context.getBean("stuMap", Student.class);
-    System.out.println("student = "  + student);
-}
-4.8.3 引用集合类型bean注入
-说明
-
-通过使用 标签实现
-
-使用步骤
-
-在xml配置文件中引入util约束
-
-<beans
-	xmlns:util="http://www.springframework.org/schema/util"
-	xsi:schemaLocation="
-       http://www.springframework.org/schema/util
-       http://www.springframework.org/schema/util/spring-util.xsd"
->
-
-</beans>
-使用util标签进入注入
-
-<!-- Map集合util标签 -->
-<util:map id="xxx"></util:map>
-
-<!-- List集合util标签 -->
-<util:list id="xxx"></util:list>
-环境准备及操作步骤
-
-添加课程类，一个学生可以上多门课程
-
-① 在Student类中添加List集合属性
-
-// 1.一个学生可以上多门课程,把课程名称放到List集合中
-    private List<String> courseList;
-// 2.生成get和set方法
-// 3.重新生成toString()方法
-
-② 创建spring配置文件：bean-diref.xml，引入util约束
-
-<!-- 添加3行带有util的配置 -->
-
-<?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-
-       xmlns:util="http://www.springframework.org/schema/util"
-    
-       xsi:schemaLocation="
-       http://www.springframework.org/schema/util
-       http://www.springframework.org/schema/util/spring-util.xsd
-    
-       http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans.xsd">
-</beans>
-③ 配置xml文件完成注入
-
-<!--引用集合类型bean注入-->
-<bean id="stuUtil" class="cn.tedu.spring.dilistmap.Student">
-    <property name="sName" value="孔慈"/>
-    <property name="age" value="36"/>
-    <property name="teacherMap" ref="teacherMap"></property>
-    <property name="courseList" ref="courseList"></property>
-</bean>
-
-<util:map id="teacherMap">
-    <entry>
-        <key>
-            <value>10000</value>
-        </key>
-        <value>小泽老师</value>
-    </entry>
-    <entry>
-        <key>
-            <value>10001</value>
-        </key>
-        <value>王老师</value>
-    </entry>
-</util:map>
-
-<util:list id="courseList">
-    <value>Spring</value>
-    <value>SpringMVC</value>
-    <value>MyBatis</value>
-</util:list>
-
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-26
-27
-28
-④ 创建测试方法进行测试
-
-// 引用集合类型bean注入（util）
-@Test
-public void testRefBean(){
-    ApplicationContext context = new ClassPathXmlApplicationContext("bean-diref.xml");
-    Student student = context.getBean("stuUtil", Student.class);
-    System.out.println("student = " + student);
-}
-1
-2
-3
-4
-5
-6
-7
-4.9 p命名空间
-这也是一种注入方式，可以在xml中定义命名空间或者叫名称空间，可以简化xml代码。
-
-在bean-diref.html中操作
-
-① 在xml配置文件中定义命名空间
-
-xmlns:p="http://www.springframework.org/schema/p"
-1
-② 在xml文件进行命名空间属性注入
-
-<!-- p命名空间注入: 注入学生属性 -->
-<bean id="studentp" class="cn.tedu.spring.iocxml.dimap.Student" p:sid="100" p:sname="铁锤妹妹" p:courseList-ref="courseList" p:teacherMap-ref="teacherMap">
-1
-2
-③ 测试
-
-// p命名空间注入测试用例
-@Test
-public void testRefP(){
-    ApplicationContext context = new ClassPathXmlApplicationContext("bean-diref.xml");
-    Student studentp = context.getBean("studentp", Student.class);
-    System.out.println("studentp = " + studentp);
-}
-1
-2
-3
-4
-5
-6
-7
-4.10 引入外部属性文件
-说明
-
- 当前所有的配置和数据都在xml文件中，一个文件中有很多bean，修改和维护起来很不方便，生产环境中会把特定的固定值放到外部文件中，然后引入外部文件进行注入，比如数据库连接信息。
-
-示例
-
-将外部文件中的数据引入xml配置文件进行注入
-
-① pom.xml中引入数据库相关依赖，并刷新maven
-
-<!-- MySQL驱动 -->
-<dependency>
-    <groupId>mysql</groupId>
-    <artifactId>mysql-connector-java</artifactId>
-    <version>8.0.15</version>
-</dependency>
-
-<!-- 数据源，连接池依赖 -->
-<dependency>
-    <groupId>com.alibaba</groupId>
-    <artifactId>druid</artifactId>
-    <version>1.1.21</version>
-</dependency>
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-② resources目录下创建外部属性文件，一般为properties格式，定义数据库信息，比如：jdbc.properties
-
-jdbc.user=root
-jdbc.password=root
-jdbc.url=jdbc://mysql://localhost:3306/spring
-jdbc.driver=com.mysql.cj.jdbc.Driver
-1
-2
-3
-4
-③ 创建spring配置文件bean-jdbc.xml，引入context的命名空间
-
-使用context可以为XML外部实体注入定义，使得解析器在解析XML文档时可以正确地识别外部实体
-
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-
-       xmlns:context="http://www.springframework.org/schema/context"
-       
-       xsi:schemaLocation="
-       http://www.springframework.org/schema/context 
-       http://www.springframework.org/schema/context/spring-context.xsd
-       
-       http://www.springframework.org/schema/beans 
-       http://www.springframework.org/schema/beans/spring-beans.xsd">
-
-
-​    
-​    <!-- 引入外部属性文件 -->
-​    <context:property-placeholder location="classpath:jdbc.properties"></context:property-placeholder>
-​    <!-- 完成数据库信息注入 -->
-​    <bean id="druidDataSource" class="com.alibaba.druid.pool.DruidDataSource">
-​        <property name="url" value="${jdbc.url}"></property>
-​        <property name="username" value="${jdbc.user}"></property>
-​        <property name="password" value="${jdbc.password}"></property>
-​        <property name="driverClassName" value="${jdbc.driver}"></property>
-​    </bean>
-</beans>
-
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-④ 创建包jdbc，包中创建测试类 TestJdbc
-
-public class TestJdbc {
-
-    // 外部文件属性引入测试用例
-    @Test
-    public void demo02(){
-        ApplicationContext context = new ClassPathXmlApplicationContext("bean-jdbc.xml");
-        DruidDataSource druidDataSource = context.getBean("druidDataSource", DruidDataSource.class);
-        System.out.println(druidDataSource.getUrl());
-    }
-}
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-4.11 bean的作用域
-说明
-
- bean的作用域，是指在交给spring创建bean对象时，可以指定是单实例还是多实例，通过bean标签中的scope属性来指定，默认是单实例。
-
-单实例和多实例
-
-单实例
-
-单实例（Singleton）是指某个类只能创建唯一的一个实例对象，并且该类提供一个全局的访问点（静态方法）来让外界获取这个实例，常常用在那些只需要一个实例来处理所有任务的场景下，例如配置类或数据库连接池等。
-
-多实例
-
-多实例（Multiple Instance）则是指可以在同一个类的定义下，创建多个实例对象。每个对象都是相互独立的，有自己的状态和行为；常常用于需要同时处理多个任务的场景。
-
-在Spring中可以通过配置bean标签的scope属性来之地那个bean的作用域范围，具体如下
-
-取值	含义	创建对象时机
-singleton（默认）	在IoC容器中，这个bean的对象为单实例	IoC容器初始化时
-prototype	这个bean在IoC容器中有多个实例	获取bean时
-案例演示
-
-① 创建包scope，并在包下创建类Sku
-
-public class Sku {
-    
-}
-1
-2
-3
-② 创建spring的配置文件：bean-scope.xml
-
-<!-- singleton:单实例 -->
-<!-- 之后改为prototype多实例测试 -->
-<bean id="sku" class="cn.tedu.spring.scope.Sku" scope="singleton"></bean>
-1
-2
-3
-③ 创建测试类TestOrders
-
-@Test
-public void testOrders(){
-    ApplicationContext context = new ClassPathXmlApplicationContext("bean-scope.xml");
-    Orders orders = context.getBean("orders", Orders.class);
-    System.out.println("orders = " + orders);
-    Orders orders1 = context.getBean("orders", Orders.class);
-    System.out.println("orders1 = " + orders1);
-}
-// 单实例，sku1和sku2地址相同
-// 多实例，sku1和sku2地址不同
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-4.12 bean的生命周期
-是指一个bean对象从创建到销毁的整个过程。
-
-4.12.1 bean的完整生命周期
-实例化阶段（bean对象创建）
-
-在这个阶段中，容器会创建一个Bean的实例，并为其分配空间。这个过程可以通过构造方法完成。
-
-属性赋值阶段
-
-在实例化完Bean之后，容器会把Bean中的属性值注入到Bean中，这个过程可以通过set方法完成。
-
-初始化阶段（bean对象初始化）
-
-在属性注入完成后，容器会对Bean进行一些初始化操作；
-
-初始化之前：bean的后置处理器可以接收到bean，此处可以对bean做相关操作。
-初始化之后：bean的后置处理器可以接收到bean，此处可以对bean做相关操作。
-使用阶段
-
-初始化完成后，Bean就可以被容器使用了
-
-销毁阶段
-
-容器在关闭时会对所有的Bean进行销毁操作，释放资源。
-
-4.12.2 生命周期验证
-① 创建包life，创建类User
-
-package cn.tedu.spring.life;
-
-import org.springframework.beans.BeansException;
-
-public class User {
-    private String username;
-
-    // 1.无参数构造
-    public User(){
-        System.out.println("1-bean对象创建，调用无参数构造。");
-    }
-    
-    // 3.初始化阶段
-    public void initMethod(){
-        System.out.println("3-bean对象初始化，调用指定的初始化方法");
-    }
-    
-    // 5.销毁阶段
-    public void destoryMethod(){
-        System.out.println("5-bean对象销毁，调用指定的销毁方法");
-    }
-    
-    public String getUsername() {
-        return username;
-    }
-    
-    public void setUsername(String username) {
-        this.username = username;
-        // 2.给bean对象属性赋值
-        System.out.println("2-通过set方法给bean对象赋值。");
-    }
-    
-    @Override
-    public String toString() {
-        return "User{" +
-                "username='" + username + '\'' +
-                '}';
-    }
-}
-
-
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-26
-27
-28
-29
-30
-31
-32
-33
-34
-35
-36
-37
-38
-39
-40
-② 创建spring配置文件 bean-life.xml
-
-<bean id="user" class="cn.tedu.spring.iocxml.life.User" scope="singleton" 
-      init-method="initMethod" destroy-method="destroyMethod">
-    <property name="username" value="聂风"></property>
-</bean>
-1
-2
-3
-4
-③ 创建测试类TestUser测试
-
-@Test
-public void testUser(){
-    ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("bean-life.xml");
-    User user = context.getBean("user", User.class);
-    // 4.bean对象初始化完成，可以使用
-    System.out.println("4-bean对象初始化完成，开发者可以使用了。");
-    // 销毁bean
-    context.close();
-}
-1
-2
-3
-4
-5
-6
-7
-8
-9
-④ 后置处理器处理演示，新建类MyBeanPost
-
-public class MyBeanPost implements BeanPostProcessor {
-    // BeanPostProcessor接口
-    @Override
-    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        System.out.println("3之前:bean后置处理器，在初始化之前执行。" + beanName + ":" + bean);
-        return bean;
-    }
-
-    @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        System.out.println("3之后:bean后置处理器，在初始化之后执行。" + beanName + ":" + bean);
-        return bean;
-    }
-}
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-⑤ 在spring的配置文件bean-life.xml中进行后置处理器配置
-
-<!-- bean的后置处理器需要放到IoC容器中才能生效 -->
-<bean id="myBeanPost" class="cn.tedu.spring.life.MyBeanPost"></bean>
-1
-2
-⑥ 运行测试类测试
-
-4.12.3 bean生命周期扩展
-bean的初始化和销毁应用场景
-
-初始化
-创建连接池
-加载资源文件
-进行数据校验
-销毁
-关闭连接池
-保存数据
-释放占用的资源
-后置处理器
-
-实现自定义的Bean对象处理逻辑，比如在Bean实例化之前或者之后对Bean对象进行自定义的修改，可以方便地实现自定义逻辑和修改Bean对象的行为。
-
-4.13 基于xml自动装配
-自动装配说明：
-
-根据指定的策略，在IoC容器中匹配某一个bean，自动为指定的bean中的所依赖的类类型或者接口类型属性赋值。
-
-环境准备
-
-① 创建包auto，创建部门和员工的两个java类
-
-② 部门类 Dept
-
-public class Dept {
-    private String dName;
-
-    @Override
-    public String toString() {
-        return "Dept{" +
-                "dName='" + dName + '\'' +
-                '}';
-    }
-    
-    public String getdName() {
-        return dName;
-    }
-    
-    public void setdName(String dName) {
-        this.dName = dName;
-    }
-}
-
-
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-③ 员工类 Emp
-
-public class Emp {
-    private String eName;
-    private Dept dept;
-
-    @Override
-    public String toString() {
-        return "Emp{" +
-                "eName='" + eName + '\'' +
-                ", dept=" + dept +
-                '}';
-    }
-    
-    public String geteName() {
-        return eName;
-    }
-    
-    public void seteName(String eName) {
-        this.eName = eName;
-    }
-    
-    public Dept getDept() {
-        return dept;
-    }
-    
-    public void setDept(Dept dept) {
-        this.dept = dept;
-    }
-}
-
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-26
-27
-28
-④ 创建spring配置文件bean-auto.xml
-
-<!--通过byType和byName自动装配-->
-<bean id="dept" class="cn.tedu.spring.iocxml.auto.Dept">
-    <property name="dName" value="技术部"></property>
-</bean>
-
-<!--autowire="byType" 或者 autowire="byName"-->
-<bean id="emp" class="cn.tedu.spring.iocxml.auto.Emp" autowire="byType">
-    <property name="eName" value="步惊云"></property>
-</bean>
-1
-2
-3
-4
-5
-6
-7
-8
-9
-⑤ 创建测试类测试TestAuto
-
-@Test
-public void testAuto(){
-    ApplicationContext context = new ClassPathXmlApplicationContext("bean-auto.xml");
-    Emp emp = context.getBean("emp", Emp.class);
-    System.out.println("emp = " + emp);
-}
-1
-2
-3
-4
-5
-6
-使用bean标签的autowire属性设置自动装配效果；
-
-自动装配方式：byType
-
- byType: 根据类型匹配IoC容器中的某个兼容类型的bean，为属性自动赋值；
-
- 1. 如果在IoC中，没有任何一个兼容类型的bean能够为属性赋值，则改属性不装配，默认值为null；
-
- 2. 如果在IoC中，有多个兼容类型的bean能够为属性赋值，则抛出异常 NoUniqueBeanDefinitionException
-
-自动装配方式：byName
-
- byName：将自动装配的属性名，作为bean的id在IoC容器中匹配相对应的bean进行赋值
-
-### 5 基于注解管理bean
-
- 从Java5开始，Java增加了对注解（Annotation）的支持，它是代码中的一种特殊标记，可以在编译、类加载和运行时被读取，执行相应的处理。开发人员可以通过注解在不改变原有代码和逻辑的情况下，在源代码中嵌入补充信息。
-
- Spring从2.5版本开始提供了对注解技术的全面支持，我们可以使用注解来实现自动装配，简化Spring的xml配置。
-
-Spring通过注解实现自动装配：
-
-引入依赖
-开启组件扫描
-使用注解定义Bean
-依赖注入
-5.1 创建子工程
-子工程：spring-ioc-annotation
-
-在pom.xml中添加springframework的依赖，刷新maven
-
-<dependencies>
-    <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-context</artifactId>
-        <version>5.3.24</version>
-    </dependency>
-</dependencies>
-
-5.2 开启组件扫描
- Spring默认不使用注解装配Bean，因此需要在Spring的xml配置中，通过context:component-scan元素开启Spring Beans的自动扫描功能。开启此功能后，Spring会自动从扫描指定的包（base-package属性设置）及其子包下的所有类，如果类上使用了@Component注解，就将该类装配到容器中。
-
-① 工程下创建包：cn.tedu.spring.bean
-
-② resources目录下创建spring配置文件 bean.xml
-
-<?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-
-       xmlns:context="http://www.springframework.org/schema/context"
-    
-       xsi:schemaLocation="
-       http://www.springframework.org/schema/context
-       http://www.springframework.org/schema/context/spring-context.xsd
-    
-       http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans.xsd">
-    
-    <!-- 2.开启组件扫描，让spring可以通过注解方式实现bean管理，包括创建对象、属性注入 -->
-    <!-- base-package:扫描哪个包中的注解，在cn.tedu的包或者子包中建了类，在
-     类上、属性上、方法上加了spring的@Component注解，这里就能扫描到-->
-    <context:component-scan base-package="cn.tedu.spring"></context:component-scan>
-
-</beans>
-
-
-5.3 使用注解定义Bean
-Spring提供了以下多个注解，这些注解可以直接标注在java类上，将它们定义成Spring Bean。
-
-注解	说明
-@Component	该注解用于描述Spring中的Bean，它是一个泛化的概念，仅仅标识容器中的一个组件（Bean），并且可以作用在任何层次，例如Service层、Dao层等，使用时只需将该注解标注在相应的类上即可。
-@Respository	该注解用于数据访问层（Dao层）的类标识为Spring中的Bean，功能与@Component相同。
-@Service	该注解通常作用在业务层（Service层），用于将业务层的类标识为Spring中的Bean，其功能与@Component相同。
-@Controller	该注解通常作用在控制层（如SpringMVC的Controller），用于将控制层的类标识为Spring中的Bean，其功能与@Component相同。
-③ 创建User类，并添加注解
-
-// value可以不写，默认为类名首字母小写
-//@Component(value = "user")  // <bean id="user" class="xxx">
-//@Repository
-//@Service
-@Controller
-public class User {
-
-}
-
-④ 创建测试类测试TestUser
-
-public class TestUser {
-    @Test
-    public void testUser(){
-        ApplicationContext context = new ClassPathXmlApplicationContext("bean.xml");
-        User user = context.getBean("user", User.class);
-        System.out.println("user = " + user);
-    }
-}
-
-5.4 @Autowired注入
-单独使用@Autowired注解，默认根据类型装配（byType）
-
-@Autowired注解有一个required属性，默认值是true，表示在注入的时候要求被注入的Bean必须存在，如果不存在则报错。如果required属性设置为false，表示注入的Bean存在或者不存在都没关系，存在就注入，不存在也不报错。
-
-5.4.1 属性注入
-① cn.tedu.spring下创建包autowired，并在autowired下创建两个包：controller包 和 service包
-
-② 控制器层controller.UserController
-
-public class UserController {
-    private UserService userService;
-    
-    public void addController(){
-        System.out.println("controller is running...");
-        userService.addService();
-    }
-}
-
-③ 服务层service.UserService接口
-
-public interface UserService {
-    public void addService();
-}
-
-④ 服务层service.UserServiceImpl接口的实现类
-
-public class UserServiceImpl implements UserService {
-    @Override
-    public void addService() {
-        System.out.println("service is running...");
-    }
-}
-
-⑤ 在UserController和UserSerivceImpl中添加@Controller注解和@Service注解
-
-⑥ 在UserController中注入UserServiceImpl
-
-@Controller
-public class UserController {
-    // 注入service
-    // 第一种方式：属性注入
-    @Autowired // 根据类型找到对象，完成注入
-    private UserService userService;
-}
-
-⑦ 测试类测试autowired.TestUserController
-
-public class TestUserController {
-
-    @Test
-    public void testUserController(){
-        ApplicationContext context = new ClassPathXmlApplicationContext("bean.xml");
-        UserController controller = context.getBean(UserController.class);
-        controller.addController();
-    }
-}
-
-5.4.2 set注入
-① 修改UserController类
-
-// 方式二：通过set方法注入
-private UserService userService;
-
-@Autowired
-public void setUserService(UserService userService) {
-    this.userService = userService;
-}
-
-② 测试
-
-5.4.3 构造方法注入
-① 修改UserController类
-
-// 第三种方式：构造方法注入
-private UserService userService;
-
-@Autowired
-public UserController(UserService userService) {
-    this.userService = userService;
-}
-
-② 测试
-
-5.4.4 形参上注入
-① 修改UserController类
-
-// 第四种方式：形参注入
-private UserService userService;
-
-public UserController(@Autowired UserService userService) {
-    this.userService = userService;
-}
-
-② 测试
-
-5.4.5 只有一个构造函数，无注解
-① 修改UserController类
-
-// 第五种方式：只有一个有参数构造函数，无注解
-private UserService userService;
-
-public UserController(UserService userService) {
-    this.userService = userService;
-}
-
-② 测试
-
-5.4.6 @Autowire注解和@Qualifier注解联合
-① 再创建一个UserService接口的实现类service.UserServiceImpl2
-
-@Service
-public class UserServiceImpl2 implements UserService{
-    @Override
-    public void addService() {
-        System.out.println("service2 is running...");
-    }
-}
-
-② 测试发现报错
-
- 因为UserService有两个实现类，而@Autowired注解根据byType定位，所以找到了两个实现类
-
-③ 解决：修改UserController （使用两个注解）
-
-// 1.第六种方式：根据类型和名称一起注入
-@Autowired
-@Qualifier(value = "userServiceImpl2")  // 类名首字母小写
-private UserService userService;
-
-// 2.将构造函数注释
-
-5.5 @Resource注入
-@Resource注解也可以完成属性注入。它和@Autowired注解的区别如下
-
-@Resource注解是JDK扩展包中的，也就是说属于JDK的一部分。所以该解释是标准注解，更加具有通用性，而@Autowired注解是Spring框架自己的。
-@Resource注解默认根据名称装配byName，未指定name时，使用属性名作为name，通过name找不到的话会自动启动通过类型byType装配。而@Autowired注解默认根据类型装配byType，如果想根据名称匹配，需要配合@Qualifier注解一起使用。
-@Resource注解用在属性上、setter方法上
-@Autowired注解用在属性上、setter方法上、构造方法上、构造方法参数上。
-案例演示
-
-① 工程下创建包 resource，和之前一样，创建controller和service两个包，并创建UserController类和UserService接口以及该接口的实现类UserServiceImpl
-
-② 修改UserController
-
-@Controller("myUserController")
-public class UserController {
-    // 根据名称进行注入
-    @Resource(name="myUserService")
-    private UserService userService;
-
-    public void add(){
-        System.out.println("controller...");
-        userService.add();
-    }
-}
-
-③ 修改ServiceControllerImpl1
-
-@Service("myUserService")
+```java
+@Service("userService")
 public class UserServiceImpl implements UserService {
 
-⑤ 测试
+    @Autowired
+    @Qualifier("userDao")
+    private UserDao userDao;
 
-指定@Resource中的name，则根据名称装配
-未指定name时，则根据属性名装配
-未指定name，属性名也不一致，则根据类型装配
-5.6 Spring全注解开发
-全注解开发就是不再使用spring配置文件了，写一个配置类来代替配置文件。
-
-① 工程下创建包：config，创建类SpringConfig
-
-// 配置类
-@Configuration
-// 开启组件扫描
-@ComponentScan("cn.tedu.spring")
-public class SpringConfig {
+    @Override
+    public void save() {
+        System.out.println("UserServiceImpl.save");
+        userDao.save();
+    }
 }
+```
 
-② 在resource下创建测试类进行测试
+```java
+@Repository("userDao")
+public class UserDaoImpl implements UserDao {
+    @Override
+    public void save() {
+        System.out.println("UserDaoImpl.save");
+    }
+}
+```
 
-public class TestUserControllerAnno {
-    public static void main(String[] args) {
-        // 加载配置类
-        ApplicationContext context =
-                new AnnotationConfigApplicationContext(SpringConfig.class);
-        UserController controller = context.getBean(UserController.class);
-        controller.add();
+#### @Resource
+
+该注解也可以用于属性注入，通常情况下使用**@Resource注解**，默认按照**名称**完成属性注入。
+
+该注解由J2EE提供，需要导入包`javax.annotation.Resource`。
+
+`@Resource`有两个重要的属性：`name`和`type`，而Spring将`@Resource`注解的`name`属性解析为bean的名字，而`type`属性则解析为bean的类型。所以，如果使用`name`属性，则使用byName的自动注入策略，而使用`type`属性时则使用byType自动注入策略。如果既不制定`name`也不制定`type`属性，这时将通过反射机制使用byName自动注入策略。
+
+```java
+/**
+ * UserController
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
+@Controller("userController")
+public class UserController {
+    
+    @Resource(name = "userService")
+    private UserService userService; 
+    
+}
+```
+
+```java
+/**
+ * UserService实现类
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
+
+@Service("userService")
+public class UserServiceImpl implements UserService {
+
+	@Resource(name = "userDao")
+    private UserDao userDao;
+
+    @Override
+    public void save() {
+        System.out.println("UserServiceImpl.save");
+        userDao.save();
     }
 }
 
-## 四、基于XML管理bean
+```
 
-### 4.1 环境准备
+```java
+/**
+ * UserDao实现类
+ * @author Chen Rui
+ * @version 1.0
+ **/
 
-### 4.2 获取bean方式
+@Component("userDao")
+public class UserDaoImpl implements UserDao {
+    @Override
+    public void save() {
+        System.out.println("UserDaoImpl.save");
+    }
+}
 
-### 4.3 基于setter依赖注入
+```
 
-### 4.4 基于构造器依赖注入
+#### @PostConstruct 和 @PreDestroy
 
-### 4.5 特殊值处理注入
+`@PostConstruct`和`@PreDestroy`注解，前者为Bean生命周期相关的注解，在配置文件中，使用到了i`nit-method`参数来配置Bean初始化之前要执行的方法，该注解也是同样的作用。将该注解添加到想在初始化之前执行的目标方法上，就可以实现该功能，而后者则是Bean生命周期中`destroy-method`目标方法，使用该注解在指定方法上，即可实现在Bean销毁之前执行该方法。
 
-#### 4.5.1 字面量赋值
+```java
+/**
+ * UserDao实现类
+ * @author Chen Rui
+ * @version 1.0
+ **/
 
-#### 4.5.2 null值
+@Component("userDao")
+public class UserDaoImpl implements UserDao {
+    
+    @PostConstruct
+    public void init(){
+        System.out.println("UserDaoImpl.init");
+    }
+    
+    @Override
+    public void save() {
+        System.out.println("UserDaoImpl.save");
+    }
+    
+    @PreDestroy
+    public void destroy(){
+        System.out.println("UserDaoImpl.destroy");
+    }
+}
+```
 
-#### 4.5.3 xml实体
+#### @Scope
 
-#### 4.5.4 CDATA区
+Bean的作用范围的注解，默认为singleton（单例）
 
-### 4.6 对象类型属性注入
+可选值：
 
-4.6.1 引用外部bean
-4.6.2 内部bean
-4.6.3 级联属性赋值（了解）
++ singleton
++ prototype
++ request
++ session
++ globalsession
 
-### 4.7 数组类型属性注入
+```java
+/**
+ * UserDao实现类
+ * @author Chen Rui
+ * @version 1.0
+ **/
 
-### 4.8 集合类型属性注入
+@Component("userDao")
+@Scope // 默认为singleton
+public class UserDaoImpl implements UserDao {
 
-4.8.1 List集合属性注入
-4.8.2 Map集合属性注入
-4.8.3 引用集合类型bean注入
+    @PostConstruct
+    public void init(){
+        System.out.println("UserDaoImpl.init");
+    }
 
-### 4.9 p命名空间
+    @Override
+    public void save() {
+        System.out.println("UserDaoImpl.save");
+    }
 
-### 4.10 引入外部属性文件
+    @PreDestroy
+    public void destroy(){
+        System.out.println("UserDaoImpl.destroy");
+    }
+}
+```
 
-### 4.11 bean的作用域
+### 6.XML管理与注解管理对比
 
-### 4.12 bean的生命周期
+基于XML配置和基于注解配置的对比
 
-4.12.1 bean的完整生命周期
-4.12.2 生命周期验证
-4.12.3 bean生命周期扩展
+|                | 基于XML的配置                                                | 基于注解的配置                                               |
+| -------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Bean的定义     | \<bean id="Bean的id" class="类的全路径"/>                    | @Component或衍生注解@Controller，@Service和@Repository       |
+| Bean的名称     | 通过id或name指定                                             | @Component(“Bean的id”)                                       |
+| Bean的属性注入 | \<property>或者通过p命名空间                                 | 通过注解@Autowired 按类型注入<br />通过@Qualifier按名称注入  |
+| Bean的生命周期 | init-method指定Bean初始化前执行的方法，destroy-method指定Bean销毁前执行的方法 | @PostConstruct 对应于int-method<br />@PreDestroy 对应于destroy-method |
+| Bean的作用域   | 在bean标签中配置scope属性                                    | @Scope, 默认是singleton<br />配置多例可以在目标类上使用@Scope(“prototype”) |
+| 使用场景       | Bean来自第三方，可以使用在任何场景                           | Bean的实现类由自己维护                                       |
 
-### 4.13 基于xml自动装配
+XML可以适用于任何场景，就算Bean来自第三方也可以适用XML方式来管理。而注解方式就无法在此场景下使用，注解方式可以让开发的过程更加方便，但前提是Bean由自己维护，这样才能在源码中添加注解。
 
-## 五、基于注解管理bean
+所以可以使用**两者混合**的方式来开发项目，使用**XML配置文件来管理Bean，使用注解来进行属性注入**
 
-5.1 创建子工程
-5.2 开启组件扫描
-5.3 使用注解定义Bean
-5.4 @Autowired注入
-5.4.1 属性注入
-5.4.2 set注入
-5.4.3 构造方法注入
-5.4.4 形参上注入
-5.4.5 只有一个构造函数，无注解
-5.4.6 @Autowire注解和@Qualifier注解联合
-5.5 @Resource注入
-5.6 Spring全注解开发
+## 四、面向切面AOP
 
-## 六.AOP面向切面编程
+### 1.介绍
 
-### 1.概念
-
-AOP又名Aspect Oriented Programming 意为 ‘面向切面编程’通过预编译和运行期间动态代理来实现程序功能的统一维护的一种技术。AOP思想是OOP(面向对象)的延续 在 OOP 中, 我们以类(class)作为我们的基本单元, 而 AOP中的基本单元是 Aspect(切面)，AOP是软件行业的热点，也是Spring框架中的一个重要内容，是函数式编程的一种延伸范式,
-
-总结：这种在运行时生成代理对象来织入的，还可以在编译期、类加载期织入，动态地将代码在不改变原有的逻辑情况下切入到类的指定方法、指定位置上的编程思想就是面向切面的编程。
-
-面向切面编程（AOP是Aspect Oriented Program的首字母缩写） ，我们知道，面向对象的特点是继承、多态和封装。而封装就要求将功能分散到不同的对象中去，这在软件设计中往往称为职责分配实际上也就是说，让不同的类设计不同的方法。这样代码就分散到一个个的类中去了。这样做的好处是降低了代码的复杂程度，使类可重用
-
-但是人们也发现，在分散代码的同时，也增加了代码的重复性。什么意思呢？比如说，我们在两个类中，可能都需要在每个方法中做日志。按面向对象的设计方法，我们就必须在两个类的方法中都加入日志的内容。也许他们是完全相同的，但就是因为面向对象的设计让类与类之间无法联系，而不能将这些重复的代码统一起来。
-
-也许有人会说，那好办啊，我们可以将这段代码写在一个独立的类独立的方法里，然后再在这两个类中调用。但是，这样一来，这两个类跟我们上面提到的独立的类就有耦合了，它的改变会影响这两个类。那么，有没有什么办法，能让我们在需要的时候，随意地加入代码呢？
-
-即假如一个流程分三个步骤，分别是X,A,Y，另一个流程的三个步骤是X,B,Y。 写在程序里，两个方法体分别是XAY和XBY，
-
-
-
-显然，这出现了重复，违反了DRY原则。 你可以把X和Y分别抽成一个方法，但至少还是要写一条语句来调用方法，xAy，xBy，
-
-
-
-重复依然存在。 如果控制反转来处理这问题，将采用模板方法的模式，在抽象父类方法体中声明x?y，其中?部分为抽象方法，由具体子类实现。 但这就出现了继承，而且调用者只能调用父类声明的方法，耦合性太强，不灵活。 所以，我们常看到，只有那些本来就是调用者调用父类声明的方法的情况，比如表现层，或者本来就不用太灵活，比如只提供增删改查的持久层，才总出现抽象父类的身影。
-
-具体Controller is-a 抽象Controller，具体Dao is-a 抽象Dao，这大家都能接受。 但除了在抽象Controller、抽象Dao中固定的步骤之外，我们就不需要点别的吗？ 比如在某些Controller方法运行之前做点什么，在某些Dao方法运行之前之后做点什么？ 而且最好能基于配置，基于约定，而不是都死乎乎硬编码到代码里。
-
-于是乎 面向切面横空出世
-
-
-
-一般而言，我们管切入到指定类指定方法的代码片段称为切面，而切入到哪些类、哪些方法则叫切入点。有了AOP，我们就可以把几个类共有的代码，抽取到一个切片中，等到需要时再切入对象中去，从而改变其原有的行为。
-这样看来，AOP其实只是OOP的补充而已。OOP从横向上区分出一个个的类来，而AOP则从纵向上向对象中加入特定的代码。有了AOP，OOP变得立体了。如果加上时间维度，AOP使OOP由原来的二维变为三维了，由平面变成立体了。从技术上来说，AOP基本上是通过代理机制实现的。
-AOP在编程历史上可以说是里程碑式的，对OOP编程是一种十分有益的补充。
-
-AOP体系:
-
-
+即**面向切面编程**，通过**预编译**方式和运行期动态代理实现程序功能的统一维护的一种技术。利用AOP可以对业务逻辑的各个部分进行**隔离**，从而使得业务逻辑各部分之间的**耦合度降低**，提高程序的**可重用性**，同时提高了开发的效率。
 
 ### 2.相关术语
 
-```
-1.增强：实际就是抽取出来的通用代码
-前置增强：在目标方法之前执行的通用代码
-后置增强：在目标方法之后执行的通用的代码
-2.目标方法：增强需要在哪些方法之前执行或者是在哪些方法执行之后，这些方法就叫目标方法
-3.连接点：程序运行时能够插入增强的位置
-4.切点（表达式）：通过切点找到连接点
-5.切面：增强+切点
-6.织入：将切面应用到目标方法上，生成代理对象的过程
-```
+#### joinpoint(连接点) 
+ 可以被拦截到的点。save(), query(),update(),delete()方法都可以增强，这些方法就可以称为连接点。
 
-#### 1.Aspect(切面)
+#### pointcut(切入点)
+真正被拦截到的点。在实际开发中，可以只对save()方法进行增强，那么save()方法就是切入点。
 
-Aspect 由 Pointcut 和 Advice 组成, 它既包含了横切逻辑的定义, 也包括了连接点的定义. Spring AOP就是负责实施切面的框架, 它将切面所定义的横切逻辑织入到切面所指定的连接点中.
-AOP的工作重心在于如何将增强织入目标对象的连接点上, 这里包含两个工作:
+#### advice(增强)
+方法层面的增强，现在可以对save()方法进行权限校验，权限校验(checkPri())的方法称为增强。
 
-如何通过 Pointcut 和 Advice 定位到特定的 Join Point 上
-如何在 Advice 中编写切面代码.
-可以简单地认为, 使用 @Aspect 注解的类就是切面.
+#### introduction(引介)
+类层面的增强。
 
-总结：切面(aspect)：通知(即增强)和切点的结合。
+#### target(目标)
+被增强的对象。
 
-#### 2.连接点(Join Point)
+#### weaving(织入)
+将增强(advice)应用到目标(target)的过程
 
-a point during the execution of a program, such as the execution of a method or the handling of an exception. In Spring AOP, a join point always represents a method execution.
-程序运行中的一些时间点, 例如一个方法的执行, 或者是一个异常的处理.
-在 Spring AOP 中, join point 总是方法的执行点, 即只有方法连接点.
+#### proxy(代理)
+代理对象，被增强以后的代理对象
 
-总结：连接点(Join Point)：在应用执行过程中能够插入切面的一个点。（注：就是抽象的「切点」声明所指代的那些具体的点。）
+#### aspect(切面)
+多个增强(advice)和多个切入点(pointcut)的组合
 
-JointPoint是程序运行过程中可识别的点，这个点可以用来作为AOP切入点。JointPoint对象则包含了和切入相关的很多信息。比如切入点的对象，方法，属性等。我们可以通过反射的方式获取这些点的状态和信息，用于追踪tracing和记录logging应用信息。
+### 3.基于XML配置实现
 
-#### 3.切点(point cut)
+#### AspectJ的XML配置案例
 
-匹配Join Point 的谓词(a predicate that matches Join Points).
-Advice 是和特定的 Point Cut 关联的, 并且在 Point Cut相匹配的Join Point中执行.
-在 Spring 中, 所有的方法都可以认为是 Join Point, 但是我们并不希望在所有的方法上都添加 Advice, 而
+首先创建一个接口`ProductDao`，在里面定义添加商品，查询商品，修改商品，删除商品方法。
 
-总结：切点(Pointcut ):一组连接点的总称,用于指定某个增强应该在何时被调用
+```java
+/**
+ * ProductDao
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
+public interface ProductDao {
 
-通俗一点讲:
+    /**
+     * 添加商品
+     */
+    void save();
 
-Pointcut 的作用就是提供一组规则(使用 AspectJ pointcut expression language 来描述) 来匹配joinpoint, 给满足规则的 joinpoint 添加 Advice .
+    /**
+     * 删除商品
+     */
+    void delete();
 
-Pointcut 是一种程序结构和规则，它用于选取Join Point并收集这些point的上下文信息。
+    /**
+     * 修改商品
+     */
+    void modify();
 
-Pointcut 通常包含了一系列的Joint Point，我们可以通过pointcut来同时操作jointpoint。单从概念上，可以把Pointcut 当做jointpoint的集合。
-
-关于Join Point 和 Point Cut 的区别
-
-在 Spring AOP 中, 所有的方法执行都是 Join point. 而 point cut 是一个描述信息, 它修饰的是 Join point, 通过 point cut, 我们就可以确定哪些 Join point 可以被织入 Advice. 因此Join point 和 point cut 本质上就是两个不同纬度上的东西.
-总结：advice 是在 Join point 上执行的, 而 point cut 规定了哪些Join point可以执行哪些 advice
-
-introduction
-
-为一个类型添加额外的方法或字段. Spring AOP 允许我们为 目标对象 引入新的接口(和对应的实现). 例如我们可以使用 introduction 来为一个 bean 实现 IsModified 接口, 并以此来简化 caching 的实现.
-
-#### 目标对象(Target)
-
-织入 advice 的目标对象. 目标对象也被称为 advised object.
-因为 Spring AOP 使用运行时代理的方式来实现 aspect, 因此 adviced object 总是一个代理对象(proxied object)
-注意, adviced object 指的不是原来的类, 而是织入 advice 后所产生的代理类.
-
-AOP proxy
-
-一个类被 AOP 织入 advice, 就会产生一个结果类, 它是融合了原类和增强逻辑的代理类.
-在 Spring AOP 中, 一个 AOP 代理是一个 JDK 动态代理对象或 CGLIB 代理对象.
-
-#### 织入(Weaving)
-
-将 aspect 和其他对象连接起来, 并创建 adviced object 的过程.
-根据不同的实现技术, AOP织入有三种方式:
-
-编译器织入, 这要求有特殊的Java编译器.
-类装载期织入, 这需要有特殊的类装载器.
-动态代理织入, 在运行期为目标类添加增强(Advice)生成子类的方式.
-Spring 采用动态代理织入, 而AspectJ采用编译器织入和类装载期织入.
-advice 的类型
-
-before advice, 在 join point 前被执行的 advice. 虽然 before advice 是在 join point 前被执行, 但是它并不能够阻止 join point 的执行, 除非发生了异常(即我们在 before advice 代码中, 不能人为地决定是否继续执行 join point 中的代码)
-after return advice, 在一个 join point 正常返回后执行的 advice
-after throwing advice, 当一个 join point 抛出异常后执行的 advice
-after(final) advice, 无论一个 join point 是正常退出还是发生了异常, 都会被执行的 advice.
-around advice, 在 join point 前和 joint point 退出后都执行的 advice. 这个是最常用的 advice.
-
-关于 AOP Proxy
-
-Spring AOP 默认使用标准的 JDK 动态代理(dynamic proxy)技术来实现 AOP 代理, 通过它, 我们可以为任意的接口实现代理.
-如果需要为一个类实现代理, 那么可以使用 CGLIB 代理. 当一个业务逻辑对象没有实现接口时, 那么Spring AOP 就默认使用 CGLIB 来作为 AOP 代理了. 即如果我们需要为一个方法织入 Advice , 但是这个方法不是一个接口所提供的方法, 则此时 Spring AOP 会使用 CGLIB 来实现动态代理. 鉴于此, Spring AOP 建议基于接口编程, 对接口进行 AOP 而不是类.
-
-彻底理解 aspect, join point, point cut, advice
-看完了上面的理论部分知识, 我相信还是会有不少朋友感觉到 AOP 的概念还是很模糊, 对 AOP 中的各种概念理解的还不是很透彻. 其实这很正常, 因为 AOP 中的概念是在是太多了, 我当时也是花了老大劲才梳理清楚的.
-下面我以一个简单的例子来比喻一下 AOP 中 aspect, jointpoint, Pointcut 与 Advice 之间的关系.
-
-让我们来假设一下, 从前有一个叫爪哇的小县城, 在一个月黑风高的晚上, 这个县城中发生了命案. 作案的凶手十分狡猾, 现场没有留下什么有价值的线索. 不过万幸的是, 刚从隔壁回来的老王恰好在这时候无意中发现了凶手行凶的过程, 但是由于天色已晚, 加上凶手蒙着面, 老王并没有看清凶手的面目, 只知道凶手是个男性, 身高约七尺五寸. 爪哇县的县令根据老王的描述, 对守门的士兵下命令说: 凡是发现有身高七尺五寸的男性, 都要抓过来审问. 士兵当然不敢违背县令的命令, 只好把进出城的所有符合条件的人都抓了起来.
-
-来让我们看一下上面的一个小故事和 AOP 到底有什么对应关系.
-首先我们知道, 在 Spring AOP 中 Join Point指代的是所有方法的执行点, 而Point Cut是一个描述信息, 它修饰的是Join Point, 通过 Point Cut, 我们就可以确定哪些 Join Point 可以被织入 Advice . 对应到我们在上面举的例子, 我们可以做一个简单的类比, Join Point 就相当于 爪哇的小县城里的百姓, Point Cut就相当于 老王所做的指控, 即凶手是个男性, 身高约七尺五寸, 而 Advice 则是施加在符合老王所描述的嫌疑人的动作: 抓过来审问.
-为什么可以这样类比呢?
-
-Join Point –>
-
-爪哇的小县城里的百姓: 因为根据定义,Join Point 是所有可能被织入 Advice 的候选的点, 在 Spring AOP中, 则可以认为所有方法执行点都是 Join Point. 而在我们上面的例子中, 命案发生在小县城中, 按理说在此县城中的所有人都有可能是嫌疑人.
-
-Point Cut –>
-
-男性, 身高约七尺五寸: 我们知道, 所有的方法(JoinPoint) 都可以织入 Advice , 但是我们并不希望在所有方法上都织入 Advice , 而 Pointcut 的作用就是提供一组规则来匹配JoinPoint, 给满足规则的 JoinPoint 添加 Advice . 同理, 对于县令来说, 他再昏庸, 也知道不能把县城中的所有百姓都抓起来审问, 而是根据凶手是个男性, 身高约七尺五寸, 把符合条件的人抓起来. 在这里 凶手是个男性, 身高约七尺五寸 就是一个修饰谓语, 它限定了凶手的范围, 满足此修饰规则的百姓都是嫌疑人, 都需要抓起来审问.
-
-advice –>
-
-抓过来审问, Advice 是一个动作, 即一段 Java 代码, 这段 Java 代码是作用于Point Cut 所限定的那些Join Point 上的. 同理, 对比到我们的例子中, 抓过来审问 这个动作就是对作用于那些满足 男性, 身高约七尺五寸 的爪哇的小县城里的百姓.
-aspect: aspect 是 Point Cut 与 Advice 的组合, 因此在这里我们就可以类比: “根据老王的线索, 凡是发现有身高七尺五寸的男性, 都要抓过来审问” 这一整个动作可以被认为是一个 aspect.
-或则我们也可以从语法的角度来简单类比一下.我们在学英语时, 经常会接触什么 定语, 被动句 之类的概念, 那么可以做一个不严谨的类比, 即 Join Point 可以认为是一个 宾语, 而 Pointcut 则可以类比为修饰 Join Point 的定语, 那么整个 aspect 就可以描述为: 满足 Pointcut 规则的Join Point 会被添加相应的 Advice 操作.
-
-增强(Advice ，另译为通知，但《3.x》作者不赞成)：在特定连接点执行的动作。
-
-
-
-### 3.我们为什么要使用AOP？
-
-我们可以利用AOP的思想来对业务逻辑的各个部分进行隔离，从而使得业务逻辑各部分的耦合度降低，提高程序的可重用性，同时提高了开发的效率。
-
-在Spring AOP中业务逻辑仅仅只关注业务本身，将日志记录，性能统计，安全控制，事务处理，异常处理等代码从业务逻辑代码中划分出来，通过对这些行为的分离，我们希望可以将它们独立到非指导业务逻辑的方法中，进而改变这些行为的时候不影响业务逻辑的代码。
-
-AOP相当于一个拦截器，去拦截一些处理，例如：当一个方法执行的时候，Spring 能够拦截正在执行的方法，在方法执行的前或者后增加额外的功能和处理，就是我们希望通过使用AOP来对我们的代码进行耦合度的降低 把原本杂乱交错的关系给分离开来 进而改变这些行为的时候不会因为杂乱的关系互相影响。
-
-AOP应该怎样使用？
-老规矩导依赖
-
- <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-aop</artifactId>
-            <scope>test</scope>
-        </dependency>
-定义 aspect(切面)
-@Aspect:作用是把当前类标识为一个切面供容器读取
-
-如果一个类被打上了@Aspect就代表着他是一个切面类
-
-当使用注解 @Aspect 标注一个 Bean 后, 那么 Spring 框架会自动收集这些 Bean, 并添加到 Spring AOP 中, 例如:
-
-@Aspect//定义该类为切面
-@Component
-public class AspectDemo
-{
+    /**
+     * 查询商品
+     */
+    void query();
 }
-注意, 仅仅使用@Aspect 注解, 并不能将一个 Java 对象转换为 Bean, 因此我们还需要使用类似 @Component 之类的注解.
 
+```
 
+接着创建一个类`ProductDaoImpl`来实现该接口
 
+```java
+/**
+ * ProductDao的实现类
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
+public class ProductDaoImpl implements ProductDao {
 
-注意, 如果一个 类被@Aspect 标注, 则这个类就不能是其他 aspect 的 advised object（目标对象） 了, 因为使用 @Aspect 后, 这个类就会被排除在 auto-proxying（自动代理） 机制之外.
-
-声明 Pointcut （切入点）
-一个 Pointcut 的声明由两部分组成:
-
-一个方法签名, 包括方法名和相关参数
-一个 Pointcut 表达式, 用来指定哪些方法执行是我们感兴趣的(即因此可以织入 Advice ).
-
-package com.example.javalogframe.text;
-
-
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.stereotype.Component;
-
-
-@Aspect//定义该类为切面
-@Component
-public class AspectDemo
-{
-
-    @Pointcut("execution(* com.example.javalogframe.text.Jui_LogDemo.*(..))")//切点表达式
-    public void aspectPointcut()
-    {
-        
+    @Override
+    public void save() {
+        System.out.println("添加商品");
     }
 
-}
-
-这个方法必须无返回值.
-
-这个方法本身就是 Pointcut signature(签名), Pointcut 表达式使用@Pointcut 注解指定.
-上面我们简单地定义了一个 Pointcut , 这个 Pointcut 所描述的是: 匹配所有在包 com.example.javalogframe.text.Jui_LogDemo 下的所有方法的执行.
-
-切点标志符(designator)
-
-AspectJ5 的切点表达式由标志符(designator)和操作参数组成. 如 “execution(* greetTo(..))” 的切点表达式, execution 就是 标志符, 而圆括号里的 * greetTo(..) 就是操作参数
-
-execution(执行)
-
-匹配 Join Point 的执行, 例如 “execution(* hello(..))” 表示匹配所有目标类中的 hello() 方法. 这个是最基本的 Pointcut 标志符.
-
-within(内)
-
-匹配特定包下的所有 Join Point, 例如 within(com.xys.*) 表示 com.xys 包中的所有连接点, 即包中的所有类的所有方法. 而 within(com.xys.demo2.*Service) 表示在 com.xys.demo2包中所有以 Service 结尾的类的所有的连接点.
-
-
-@Pointcut("within(com.xys.demo2.*)")
-public void pointcut2() {
-}
-this 与 target
-
-this 的作用是匹配一个 bean, 这个 bean(Spring AOP proxy) 是一个给定类型的实例(instance of). 而 target 匹配的是一个目标对象(target object, 即需要织入 Advice的原始的类), 此对象是一个给定类型的实例(instance of).
-
-bean
-
-匹配 bean 名字为指定值的 bean 下的所有方法, 例如:
-
-bean(*Service) // 匹配名字后缀为 Service 的 bean 下的所有方法
-bean(myService) // 匹配名字为 myService 的 bean 下的所有方法
-
-args
-
-匹配参数满足要求的的方法.
-例如:
-
-切面类
-
-package com.example.javalogframe.text;
-
-
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
-import org.aspectj.lang.annotation.Pointcut;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
-
-
-@Aspect//定义该类为切面
-@Component
-public class AspectDemo
-{
-
-    @Pointcut("within(com.example.javalogframe.text.*)")//切点表达式
-    public void aspectPointcut()
-    {
-     
+    @Override
+    public void delete() {
+        System.out.println("删除商品");
     }
     
-    @Before(value = "aspectPointcut() && args(name)")
-    public void outName(String name){
-        System.out.println("OUTNAME:"+name);
+    @Override
+    public void modify() {
+        System.out.println("修改商品");
     }
-
- 
-
-
-
-
-
-
-
-
-
+    
+    @Override
+    public void query() {
+        System.out.println("查询商品");
+    }
+    
 }
 
-方法类
+```
 
-package com.example.javalogframe.text;
+现在目的就是给`save()`方法进行增强，使得在调用`save()`方法前进行权限校验。
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+要实现此功能，先创建一个**增强类**，或者叫**切面类**。里面编写要增强的功能，例如权限校验。
 
-@Component
-public class AspectText
+创建增强类`ProductEnhancer`
 
-{
-    private static final Logger l = LoggerFactory.getLogger(AspectText.class);
+```java
+/**
+ * ProductDao的增强类(切面类)
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
+public class ProductEnhancer {
 
-    public void a()
-    {
-        l.info("我出来咯表哥");
-    }
-     
-    public  String b(String name){
-        l.info("name:{}",name);
-        return "可以咯";
-    }
-
- 
-
-
-
-
-
-
-
-
-
-}
-
-启动类
-
-package com.example.javalogframe.text;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-import java.util.logging.Logger;
-
-@Component
-public class Jui_LogDemo
-{
-    private static final Logger LOGGER = Logger.getLogger(Jui_LogDemo.class.getName());
-
-    @Autowired
-    AspectText aspectText;
-     
-    public  @PostConstruct void Log()
-    {
-        aspectText.b("帅");
+    public void checkPri(){
+        System.out.println("【前置增强】权限校验");
     }
 
 }
 
-不能在mian方法中调用也不能在自身的类里面调用b类 那样不算从Spring 容器中拿到的对象 所以AOP就会失效
+```
 
-输出效果:
+然后创建配置文件`aspectj-xml.xml`来配置，该文件名此案例仅用于演示，实际开发中不要采取此名，依据实际需求编写。
 
- .   ____          _            __ _ _
- /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
-( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
- \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
-  '  |____| .__|_| |_|_| |_\__, | / / / /
- =========|_|==============|___/=/_/_/_/
- :: Spring Boot ::                (v2.7.0)
-11:29:52 [main] INFO  com.example.javalogframe.JavaLogframeApplication - Starting JavaLogframeApplication using Java 1.8.0_301 on DESKTOP-KSHCS0C with PID 27016 (E:\LHJ\Java练习\java-logframe\target\classes started by Administrator in E:\LHJ\Java练习\java-logframe)
-11:29:52 [main] INFO  com.example.javalogframe.JavaLogframeApplication - No active profile set, falling back to 1 default profile: "default"
-OUTNAME:帅
-11:29:53 [main] INFO  com.example.javalogframe.text.AspectText - name:帅
-11:29:53 [main] INFO  com.example.javalogframe.JavaLogframeApplication - Started JavaLogframeApplication in 0.663 seconds (JVM running for 1.319)
-    _____ _    _   log服务启动成功       _   _  _____ _______    _  ____  _    _ 
-  / ____| |  | |   /\   | \ | |/ ____|___  / |  | |/ __ \| |  | |
- | (___ | |__| |  /  \  |  \| | |  __   / /| |__| | |  | | |  | |
-  \___ \|  __  | / /\ \ | . ` | | |_ | / / |  __  | |  | | |  | |
-  ____) | |  | |/ ____ \| |\  | |__| |/ /__| |  | | |__| | |__| |
- |_____/|_|  |_/_/    \_\_| \_|\_____/_____|_|  |_|\____/ \____/ 
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/aop
+    http://www.springframework.org/schema/aop/spring-aop.xsd">
 
-我的项目结构图
+    <!-- 配置目标对象，即被增强的对象 -->
+    <bean id="productDao" class="learningspring.aop.aspectj.xml.demo2.ProductDaoImpl"/>
 
+    <!-- 将增强类(切面类)交给Spring管理 -->
+    <bean id="productEnhancer" class="learningspring.aop.aspectj.xml.demo2.ProductEnhancer"/>
+    
+    <!-- 通过对AOP的配置完成对目标对象产生代理 -->
+    <aop:config>
+        <!-- 表达式配置哪些类的哪些方法需要进行增强 -->
+        <!-- 对ProductDaoImpl类中的save方法进行增强 -->
+        <!--
+        “*” 表示任意返回值类型
+        “..” 表示任意参数
+        -->
+        <aop:pointcut id="pointcut1" expression="execution(* learningspring.aop.aspectj.xml.demo2.ProductDaoImpl.save(..))"/>
 
+        <!-- 配置切面 -->
+        <aop:aspect ref="productEnhancer">
+            <!-- 前置增强 -->
+            <!-- 实现在调用save方法之前调用checkPri方法来进行权限校验-->
+            <aop:before method="checkPri" pointcut-ref="pointcut1"/>
+        </aop:aspect>
+    </aop:config>
+    
+</beans>
+```
 
-当 aspectText.b 执行时, 则 Advice outName()就会执行, test 方法的参数 name 就会传递到 outName中.
+至此切入点及切面都已配置完成，编写测试类和方法
 
-所以我在切面类里面用within是去拿到text包下的所有方法,然后我在通过@Before前置增强在用args参数匹配找到匹配参数的方法然后输出拿到的参数
+```java
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-常用例子:
-
-// 匹配只有一个参数 name 的方法
-@Before(value = "aspectMethod()  &&  args(name)")
-public void doSomething(String name) {
-}
-
-
-// 匹配第一个参数为 name 的方法
-@Before(value = "aspectMethod()  &&  args(name, ..)")
-public void doSomething(String name) {
-}
-
-
-// 匹配第二个参数为 name 的方法
-
-Before(value = "aspectMethod()  &&  args(*, name, ..)")
-public void doSomething(String name) {
-}
-
-@annotation
-
-匹配由指定注解所标注的方法, 例如:
-
-@Pointcut("@annotation(com.xys.demo1.AuthChecker)") 
-public void pointcut()
-{ 
-}
-则匹配由注解 AuthChecker 所标注的方法.
-
-常见的切点表达式
-
-// 匹配指定包中的所有的方法
-execution(* com.xys.service.*(..))
-
-// 匹配当前包中的指定类的所有方法
-execution(* UserService.*(..))
-
-// 匹配指定包中的所有 public 方法
-execution(public * com.xys.service.*(..))
-
-// 匹配指定包中的所有 public 方法, 并且返回值是 int 类型的方法
-execution(public int com.xys.service.*(..))
-
-// 匹配指定包中的所有 public 方法, 并且第一个参数是 String, 返回值是 int 类型的方法
-execution(public int com.xys.service.*(String name, ..))
-匹配类型签名
-
-// 匹配指定包中的所有的方法, 但不包括子包
-within(com.xys.service.*)
-
-// 匹配指定包中的所有的方法, 包括子包
-within(com.xys.service..*)
-
-// 匹配当前包中的指定类中的方法
-within(UserService)
-
-
-// 匹配一个接口的所有实现类中的实现的方法
-within(UserDao+)
-匹配 Bean 名字
-
-// 匹配以指定名字结尾的 Bean 中的所有方法
-bean(*Service)
-切点表达式组合
-
-// 匹配以 Service 或 ServiceImpl 结尾的 bean
-bean(*Service || *ServiceImpl)
-
-// 匹配名字以 Service 开头, 并且在包 com.xys.service 中的 bean
-bean(*Service) && within(com.xys.service.*)
-
-声明 Advice
-Advice是和一个 Pointcut 表达式关联在一起的, 并且会在匹配的 Join Point 的方法执行的前/后/周围 运行. Pointcut 表达式可以是简单的一个 Pointcut 名字的引用, 或者是完整的 Pointcut 表达式.
-下面我们以几个简单的 Advice 为例子, 来看一下一个 Advice 是如何声明的.
-
-Before advice
+import javax.annotation.Resource;
 
 /**
- * @author xiongyongshun
+ * AspectJ的XML方式配置测试类
+ *
+ * @author Chen Rui
  * @version 1.0
- * @created 16/9/9 13:13
- */
-    @Component
-    @Aspect
-    public class BeforeAspectTest {
-    // 定义一个 Pointcut, 使用 切点表达式函数 来描述对哪些 Join point 使用 advise.
-    @Pointcut("execution(* com.xys.service.UserService.*(..))")
-    public void dataAccessOperation() {
-    }
-    }
-    @Component
-    @Aspect
-    public class AdviseDefine {
-    // 定义 advise
-    @Before("com.xys.aspect.PointcutDefine.dataAccessOperation()")
-    public void doBeforeAccessCheck(JoinPoint joinPoint) {
-        System.out.println("*****Before advise, method: " + joinPoint.getSignature().toShortString() + " *****");
-    }
-    }
+ **/
 
-这里, @Before 引用了一个 Pointcut , 即 “com.xys.aspect.PointcutDefine.dataAccessOperation()” 是一个 Pointcut 的名字.
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("classpath:aspectj-xml.xml")
+public class AppTest {
 
+    @Resource(name = "productDao")
+    private ProductDao productDao;
 
-如果我们在 Advice 在内置 Pointcut , 则可以:
-
-@Component
-@Aspect
-public class AdviseDefine {
-    // 将 pointcut 和 advice 同时定义
-    @Before("within(com.xys.service..*)") 
-    publicvoiddoAccessCheck(JoinPoint joinPoint) 
-    { 
-        System.out.println("*****doAccessCheck, Before advise, method: " + joinPoint.getSignature().toShortString() + " *****");
-    } 
-}
-around advice
-
-around Advice 比较特别, 它可以在一个方法的之前之前和之后添加不同的操作, 并且甚至可以决定何时, 如何, 是否调用匹配到的方法.
-
-在看环绕增强时我们需要先了解两个对象 joinpoint(连接点) 和 proceedingjoinpoint(进行连接点)
-
-因为我们前面了解到 joinpoint 是连接点的意思 所以 JointPoint对象则包含了和切入相关的很多信息。比如切入点的对象，方法，属性等。我们可以通过反射的方式获取这些点的状态和信息，用于追踪tracing和记录logging应用信息。
-
-而proceedingjoinpoint 继承了 JoinPoint。是在JoinPoint的基础上暴露出 proceed 这个方法。proceed很重要，这个是aop代理链执行的方法。
-
-JointPoint和ProceedingJoinPoint区别？
-JointPoint
-
-通过JpointPoint对象可以获取到下面信息
-
-返回目标对象，即被代理的对象
-
-Object getTarget();
-
-返回切入点的参数
-
-Object[] getArgs();
-
-返回切入点的Signature
-
-Signature getSignature();
-
-返回切入的类型，比如method-call，field-get等等，感觉不重要 
-
- String getKind();
-ProceedingJoinPoint
-
-Proceedingjoinpoint 继承了 JoinPoint。是在JoinPoint的基础上暴露出 proceed 这个方法。proceed很重要，这个是aop代理链执行的方法。
-
-环绕通知=前置+目标方法执行+后置通知，proceed方法就是用于启动目标方法执行的
-
-暴露出这个方法，就能支持 aop:around 这种切面（而其他的几种切面只需要用到JoinPoint，，这也是环绕通知和前置、后置通知方法的一个最大区别。这跟切面类型有关）， 能决定是否走代理链还是走自己拦截的其他逻辑。建议看一下 JdkDynamicAopProxy的invoke方法，了解一下代理链的执行原理。
-
-JointPoint使用详解
-这里详细介绍JointPoint的方法，这部分很重要是coding核心参考部分。开始之前我们思考一下，我们到底需要获取切入点的那些信息。我的思考如下
-
-切入点的方法名字及其参数
-切入点方法标注的注解对象（通过该对象可以获取注解信息）
-切入点目标对象（可以通过反射获取对象的类名，属性和方法名）
-注：有一点非常重要，Spring的AOP只能支持到方法级别的切入。换句话说，切入点只能是某个方法。
-
-针对以上的需求JDK提供了如下API
-
-
-
-1 获取切入点所在目标对象
-
-// 获取切入点所在目标对象
-Object targetObj =joinPoint.getTarget();
-
-//可以发挥反射的功能获取关于类的任何信息，例如获取类名如下
-  String className = joinPoint.getTarget().getClass().getName();
-因为一个类有很多方法，为了获取具体切入点所在的方法可以通过如下API
-
-2.获取切入点方法的名字
-
-getSignature());是获取到这样的信息 :修饰符+ 包名+组件名(类名) +方法名
-
-这里我只需要方法名
-
-String methodName = joinPoint.getSignature().getName()
-3. 获取方法上的注解
-
-方法1：xxxxxx是注解名字
-
-Signature signature = joinPoint.getSignature();
-        MethodSignature methodSignature = (MethodSignature) signature;
-        Method method = methodSignature.getMethod();
-
-        if (method != null)
-        {
-            xxxxxx annoObj= method.getAnnotation(xxxxxx.class);
-        }
-        return null;
-方法2：上面我们已经知道了方法名和类的对象，通过反射可以获取类的内部任何信息。
-
-// 切面所在类
-        Object target = joinPoint.getTarget();
-
-        String methodName = joinPoint.getSignature().getName();
-     
-        Method method = null;
-        for (Method m : target.getClass().getMethods()) {
-            if (m.getName().equals(methodName)) {
-                method = m;
-               //  xxxxxx annoObj= method.getAnnotation(xxxxxx.class);同上
-                break;
-            }
-        }
-4. 获取方法的参数
-
-这里返回的是切入点方法的参数列表
-
-Object[] args = joinPoint.getArgs();
-测试
-眼见为实，测试一遍可以理解更深刻
-
-注解类
-
-@Target({ ElementType.PARAMETER, ElementType.METHOD })
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-public @interface ApiLog
-{
-    /**
-     * 模块 
-     */
-    public String title() default "";
-
-    /**
-     * 日志记录service实现
-     * @return
-     */
-    public String logService() default "operLogServiceImpl";
-
- 
-
-
-
-
-
-
-
-
-    /**
-     * 是否保存请求的参数
-     */
-    public boolean isSaveRequestData() default true;
-     
-    /**
-     * 是否追踪用户操作
-     * @return
-     */
-    public boolean isTrack() default true;
-}
-
-切面类
-
-package com.kouryoushine.aop.test;
-import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.Signature;
-import org.aspectj.lang.annotation.AfterReturning;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
-import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.stereotype.Component;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
-@Aspect
-@Component
-public class DemoAspect {
-
-    //切入点：aopdemo报下所有对象的save方法
-    @Pointcut("execution(public * com.kouryoushine.aop.test.*.save*(..))")
-    public void save(){
-     
-    }
-    /**
-     * 需要在update操作前后分别获取更新前后的值
-     * @param
-     * @return
-     */
-     
-    @AfterReturning("save()")
-    public void afterReturn(JoinPoint joinPoint) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-     
-        //1.获取切入点所在目标对象
-        Object targetObj =joinPoint.getTarget();
-        System.out.println(targetObj.getClass().getName());
-        // 2.获取切入点方法的名字
-        String methodName = joinPoint.getSignature().getName();
-        System.out.println("切入方法名字："+methodName);
-        // 3. 获取方法上的注解
-        Signature signature = joinPoint.getSignature();
-        MethodSignature methodSignature = (MethodSignature) signature;
-        Method method = methodSignature.getMethod();
-     
-        if (method != null)
-        {
-           ApiLog apiLog=  method.getAnnotation(ApiLog.class);
-            System.out.println("切入方法注解的title:"+apiLog.title());
-        }
-     
-        //4. 获取方法的参数
-        Object[] args = joinPoint.getArgs();
-        for(Object o :args){
-            System.out.println("切入方法的参数："+o);
-        }
-
- 
-
-
-
-
-
-
-
-
-    }
-
- 
-
-
-
-
-
-
-
-
-
-}
-
-服务类
-
-@Service
-public class TestServcie {
-
-    @ApiLog(title = "注解的标题",isSaveRequestData = false)
-    public void save(String parm1,int parm2){
-        System.out.println("执行目标对象的方法"+parm1+parm2);
-    }
-
- 
-
-
-
-
-
-
-
-
-    public void  update(){
-        System.out.println("没有注解的方法，不会被拦截");
-    }
-}
-测试方法
-
-  @Autowired
-    TestServcie testServcie;
     @Test
-    void  test6() throws Exception{
+    public void test(){
+        // 对save方法进行增强
+        productDao.save();
 
-        testServcie.save("参数1字符串",33);
+        productDao.delete();
+        
+        productDao.modify();
+        
+        productDao.query();
     }
-测试结果
+}
 
-com.kouryoushine.aop.test.TestServcie
+```
 
-切入方法名字：save
+运行`test()`方法，控制台打印结果如下：
 
-切入方法注解的title:注解的标题
+```
+【前置增强】权限校验
+添加商品
+删除商品
+修改商品
+查询商品
+```
 
-切入方法的参数：参数1字符串
+至此就实现了在不修改`ProductDaoImpl`类的情况下，对其中的`save()`方法进行增强。
 
-切入方法的参数：33
+#### Spring中常用的增强类型
 
-所以现在我们知道了joinpoint 对象的作用 可以获取切入点的消息
+##### 前置增强
 
-而proceedingjoinpoint 仅支持环绕增强建议
+在目标方法执行之前执行，可以获得切入点的信息
 
-因为proceedingjoinpoint和joinpoint不同的暴露出 proceed 这个方法。proceed很重要，这个是aop代理链执行的方法。
+修改之前的`ProductEnhancer`类的`checkPri()`方法的参数。
 
-@Component
+```java
+import org.aspectj.lang.JoinPoint;
+
+/**
+ * ProductDao的增强类(切面类)
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
+public class ProductEnhancer {
+
+    public void checkPri(JoinPoint joinPoint){
+        System.out.println("【前置增强】权限校验" + joinPoint);
+    }
+
+}
+```
+
+执行测试方法，控制台输出
+
+```
+【前置增强】权限校验execution(void learningspring.aop.aspectj.xml.demo2.ProductDao.save())
+添加商品
+删除商品
+修改商品
+查询商品
+```
+
+
+
+##### 后置增强
+
+在目标方法执行之后执行，可以获得方法的返回值
+
+首先修改`ProductDao`中的`delete()`方法的返回值类型，改成String
+
+```java
+/**
+ * ProductDao
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
+public interface ProductDao {
+
+    /**
+     * 添加商品
+     */
+    void save();
+
+    /**
+     * 删除商品
+     */
+    String delete();
+
+    /**
+     * 修改商品
+     */
+    void modify();
+
+    /**
+     * 查询商品
+     */
+    void query();
+}
+
+```
+
+再修改`ProductDaoImpl`中的`delete()`方法
+
+```java
+/**
+ * ProductDao的实现类
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
+public class ProductDaoImpl implements ProductDao {
+
+    @Override
+    public void save() {
+        System.out.println("添加商品");
+    }
+
+    @Override
+    public String delete() {
+        System.out.println("删除商品");
+        return new Date().toString();
+    }
+
+    @Override
+    public void modify() {
+        System.out.println("修改商品");
+    }
+
+    @Override
+    public void query() {
+        System.out.println("查询商品");
+    }
+}
+
+```
+
+修改`ProductEnhancer`类，添加`writeLog()`方法，实现写日志功能
+
+```java
+/**
+ * ProductDao的增强类(切面类)
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
+public class ProductEnhancer {
+
+    /**
+     * 前置增强案例
+     * 在调用save方法之前进行权限校验
+     * @param joinPoint 切入点对象
+     */
+    public void checkPri(JoinPoint joinPoint){
+        System.out.println("【前置增强】权限校验" + joinPoint);
+    }
+
+    /**
+     * 后置增强案例
+     * 在调用delete方法之后，写入日志记录操作时间
+     * @param result 目标方法返回的对象
+     */
+    public void writeLog(Object result){
+        System.out.println("【后置增强】写入日志 操作时间：" + result.toString());
+    }
+}
+```
+
+然后修改`aspectj.xml`配置文件，配置新的**切入点**和**切面**
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/aop
+    http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- 配置目标对象，即被增强的对象 -->
+    <bean id="productDao" class="learningspring.aop.aspectj.xml.demo2.ProductDaoImpl"/>
+
+    <!-- 将增强类(切面类)交给Spring管理 -->
+    <bean id="productEnhancer" class="learningspring.aop.aspectj.xml.demo2.ProductEnhancer"/>
+    
+    <!-- 通过对AOP的配置完成对目标对象产生代理 -->
+    <aop:config>
+        <!-- 表达式配置哪些类的哪些方法需要进行增强 -->
+        <!-- 对ProductDaoImpl类中的save方法进行增强 -->
+        <!--
+        “*” 表示任意返回值类型
+        “..” 表示任意参数
+        -->
+        <!-- 前置增强的切入点配置 -->
+        <aop:pointcut id="pointcut1" expression="execution(* learningspring.aop.aspectj.xml.demo2.ProductDaoImpl.save(..))"/>
+        
+        <!-- 后置增强的切入点配置 -->
+        <aop:pointcut id="pointcut2" expression="execution(* learningspring.aop.aspectj.xml.demo2.ProductDaoImpl.delete(..))"/>
+
+        <!-- 配置切面 -->
+        <aop:aspect ref="productEnhancer">
+            <!-- 前置增强 -->
+            <!-- 实现在调用save方法之前调用checkPri方法来进行权限校验-->
+            <aop:before method="checkPri" pointcut-ref="pointcut1"/>
+            
+            <!-- 后置增强 -->
+            <!-- returning里面的值必须和writeLog()方法里的参数名相同，本案例为result-->
+            <aop:after-returning method="writeLog" returning="result" pointcut-ref="pointcut2"/>
+        </aop:aspect>
+    </aop:config>
+
+</beans>
+```
+
+执行测试方法，控制台打印结果
+
+```
+【前置增强】权限校验execution(void learningspring.aop.aspectj.xml.demo2.ProductDao.save())
+添加商品
+删除商品
+【后置增强】写入日志 操作时间：Tue Mar 19 15:59:48 CST 2019
+修改商品
+查询商品
+```
+
+##### 环绕增强
+
+在目标方法执行之前和之后都执行
+
+利用环绕增强来实现在调用`modify()`方法前后进行性能监控
+
+首先修改`ProductEnhancer`类，添加`monitor()`方法
+
+```java
+/**
+ * ProductDao的增强类(切面类)
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
+public class ProductEnhancer {
+
+    /**
+     * 前置增强案例
+     * 在调用save方法之前进行权限校验
+     * @param joinPoint 切入点对象
+     */
+    public void checkPri(JoinPoint joinPoint){
+        System.out.println("【前置增强】权限校验" + joinPoint);
+    }
+
+    /**
+     * 后置增强案例
+     * 在调用delete方法之后，写入日志记录操作时间
+     * @param result 目标方法返回的对象
+     */
+    public void writeLog(Object result){
+        System.out.println("【后置增强】写入日志 操作时间：" + result.toString());
+    }
+
+    /**
+     * 环绕增强
+     * 在调用modify方法前后，显示性能参数
+     * @param joinPoint 切入点对象
+     * @throws Throwable 可抛出的异常
+     */
+    public Object monitor(ProceedingJoinPoint joinPoint) throws Throwable{
+        System.out.println("【环绕增强】当前空闲内存" + Runtime.getRuntime().freeMemory()/(1024 * 1024) + "MB");
+        Object obj = joinPoint.proceed();
+        System.out.println("【环绕增强】当前空闲内存" + Runtime.getRuntime().freeMemory()/(1024 * 1024) + "MB");
+        return obj;
+    }
+}
+
+```
+
+然后再修改`aspectj.xml`配置文件，添加新的**切入点**和**切面**
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/aop
+    http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- 配置目标对象，即被增强的对象 -->
+    <bean id="productDao" class="learningspring.aop.aspectj.xml.demo2.ProductDaoImpl"/>
+
+    <!-- 将增强类(切面类)交给Spring管理 -->
+    <bean id="productEnhancer" class="learningspring.aop.aspectj.xml.demo2.ProductEnhancer"/>
+    
+    <!-- 通过对AOP的配置完成对目标对象产生代理 -->
+    <aop:config>
+        <!-- 表达式配置哪些类的哪些方法需要进行增强 -->
+        <!-- 对ProductDaoImpl类中的save方法进行增强 -->
+        <!--
+        “*” 表示任意返回值类型
+        “..” 表示任意参数
+        -->
+        <!-- 前置增强的切入点配置 -->
+        <aop:pointcut id="pointcut1" expression="execution(* learningspring.aop.aspectj.xml.demo2.ProductDaoImpl.save(..))"/>
+
+        <!-- 后置增强的切入点配置 -->
+        <aop:pointcut id="pointcut2" expression="execution(* learningspring.aop.aspectj.xml.demo2.ProductDaoImpl.delete(..))"/>
+
+        <!-- 环绕增强的切入点配置 -->
+        <aop:pointcut id="pointcut3" expression="execution(* learningspring.aop.aspectj.xml.demo2.ProductDaoImpl.modify(..))"/>
+
+        <!-- 配置切面 -->
+        <aop:aspect ref="productEnhancer">
+            <!-- 前置增强 -->
+            <!-- 实现在调用save方法之前调用checkPri方法来进行权限校验-->
+            <aop:before method="checkPri" pointcut-ref="pointcut1"/>
+
+            <!-- 后置增强 -->
+            <!-- returning里面的值必须和writeLog()方法里的参数名相同，本案例为result-->
+            <aop:after-returning method="writeLog" returning="result" pointcut-ref="pointcut2"/>
+
+            <!-- 环绕增强 -->
+            <aop:around method="monitor" pointcut-ref="pointcut3"/>
+
+        </aop:aspect>
+    </aop:config>
+
+</beans>
+```
+
+运行测试方法，控制台打印结果：
+
+```
+【前置增强】权限校验execution(void learningspring.aop.aspectj.xml.demo2.ProductDao.save())
+添加商品
+删除商品
+【后置增强】写入日志 操作时间：Tue Mar 19 15:58:49 CST 2019
+【环绕增强】当前空闲内存185MB
+修改商品
+【环绕增强】当前空闲内存185MB
+查询商品
+```
+
+##### 异常抛出增强
+
+在程序出现异常时执行
+
+利用异常抛出增强来实现获取异常信息的功能
+
+首先修改`ProductDaoImpl`中的`query()`方法，使该方法抛出异常
+
+```java
+/**
+ * ProductDao的实现类
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
+public class ProductDaoImpl implements ProductDao {
+
+    @Override
+    public void save() {
+        System.out.println("添加商品");
+    }
+
+    @Override
+    public void query() {
+        System.out.println("查询商品");
+        int a = 1/0;
+    }
+
+    @Override
+    public void modify() {
+        System.out.println("修改商品");
+    }
+
+    @Override
+    public String delete() {
+        System.out.println("删除商品");
+        return new Date().toString();
+    }
+}
+```
+
+接着修改`ProductEnhancer`类，添加`exception()`方法
+
+```java
+/**
+ * ProductDao的增强类(切面类)
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
+public class ProductEnhancer {
+
+    /**
+     * 前置增强案例
+     * 在调用save方法之前进行权限校验
+     * @param joinPoint 切入点对象
+     */
+    public void checkPri(JoinPoint joinPoint){
+        System.out.println("【前置增强】权限校验" + joinPoint);
+    }
+
+    /**
+     * 后置增强案例
+     * 在调用delete方法之后，写入日志记录操作时间
+     * @param result 目标方法返回的对象
+     */
+    public void writeLog(Object result){
+        System.out.println("【后置增强】写入日志 操作时间：" + result.toString());
+    }
+
+    /**
+     * 环绕增强
+     * 在调用modify方法前后，显示性能参数
+     * @param joinPoint 切入点对象
+     * @throws Throwable 可抛出的异常
+     */
+    public Object monitor(ProceedingJoinPoint joinPoint) throws Throwable{
+        System.out.println("【环绕增强】当前空闲内存" + Runtime.getRuntime().freeMemory()/(1024 * 1024) + "MB");
+        Object obj = joinPoint.proceed();
+        System.out.println("【环绕增强】当前空闲内存" + Runtime.getRuntime().freeMemory()/(1024 * 1024) + "MB");
+        return obj;
+    }
+
+    /**
+     * 异常抛出增强
+     * 在调用query时若抛出异常则打印异常信息
+     * @param ex 异常对象
+     */
+    public void exception(Throwable ex){
+        System.out.println("【异常抛出增强】" + "异常信息：" +ex.getMessage());
+    }
+}
+
+```
+
+然后再修改`aspectj-xml.xml`配置文件，添加新的**切入点**和**切面**
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/aop
+    http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- 配置目标对象，即被增强的对象 -->
+    <bean id="productDao" class="learningspring.aop.aspectj.xml.demo2.ProductDaoImpl"/>
+
+    <!-- 将增强类(切面类)交给Spring管理 -->
+    <bean id="productEnhancer" class="learningspring.aop.aspectj.xml.demo2.ProductEnhancer"/>
+    
+    <!-- 通过对AOP的配置完成对目标对象产生代理 -->
+    <aop:config>
+        <!-- 表达式配置哪些类的哪些方法需要进行增强 -->
+        <!-- 对ProductDaoImpl类中的save方法进行增强 -->
+        <!--
+        “*” 表示任意返回值类型
+        “..” 表示任意参数
+        -->
+        <!-- 前置增强的切入点配置 -->
+        <aop:pointcut id="pointcut1" expression="execution(* learningspring.aop.aspectj.xml.demo2.ProductDaoImpl.save(..))"/>
+
+        <!-- 后置增强的切入点配置 -->
+        <aop:pointcut id="pointcut2" expression="execution(* learningspring.aop.aspectj.xml.demo2.ProductDaoImpl.delete(..))"/>
+
+        <!-- 环绕增强的切入点配置 -->
+        <aop:pointcut id="pointcut3" expression="execution(* learningspring.aop.aspectj.xml.demo2.ProductDaoImpl.modify(..))"/>
+
+        <!-- 异常抛出增强的切入点配置 -->
+        <aop:pointcut id="pointcut4" expression="execution(* learningspring.aop.aspectj.xml.demo2.ProductDaoImpl.query(..))"/>
+
+        <!-- 配置切面 -->
+        <aop:aspect ref="productEnhancer">
+            <!-- 前置增强 -->
+            <!-- 实现在调用save方法之前调用checkPri方法来进行权限校验-->
+            <aop:before method="checkPri" pointcut-ref="pointcut1"/>
+
+            <!-- 后置增强 -->
+            <!-- returning里面的值必须和writeLog()方法里的参数名相同，本案例为result-->
+            <aop:after-returning method="writeLog" returning="result" pointcut-ref="pointcut2"/>
+
+            <!-- 环绕增强 -->
+            <aop:around method="monitor" pointcut-ref="pointcut3"/>
+
+            <!-- 异常抛出增强 -->
+            <aop:after-throwing method="exception" throwing="ex" pointcut-ref="pointcut4"/>
+        </aop:aspect>
+    </aop:config>
+
+</beans>
+```
+
+最后执行测试方法，控制台输出结果：
+
+```
+【前置增强】权限校验execution(void learningspring.aop.aspectj.xml.demo2.ProductDao.save())
+添加商品
+删除商品
+【后置增强】写入日志 操作时间：Tue Mar 19 15:58:16 CST 2019
+【环绕增强】当前空闲内存183MB
+修改商品
+【环绕增强】当前空闲内存183MB
+查询商品
+【异常抛出增强】异常信息：/ by zero
+```
+
+##### 最终增强
+
+无论代码是否有异常最终都会执行
+
+继续在异常抛出增强的代码修改，实现无论是否抛出异常都会打印当前时间信息
+
+首先修改`ProductEnhancer`类，添加`finallyAdvice()`方法
+
+```java
+/**
+ * ProductDao的增强类(切面类)
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
+public class ProductEnhancer {
+
+    /**
+     * 前置增强案例
+     * 在调用save方法之前进行权限校验
+     * @param joinPoint 切入点对象
+     */
+    public void checkPri(JoinPoint joinPoint){
+        System.out.println("【前置增强】权限校验" + joinPoint);
+    }
+
+    /**
+     * 后置增强案例
+     * 在调用delete方法之后，写入日志记录操作时间
+     * @param result 目标方法返回的对象
+     */
+    public void writeLog(Object result){
+        System.out.println("【后置增强】写入日志 操作时间：" + result.toString());
+    }
+
+    /**
+     * 环绕增强
+     * 在调用modify方法前后，显示性能参数
+     * @param joinPoint 切入点对象
+     * @throws Throwable 可抛出的异常
+     */
+    public Object monitor(ProceedingJoinPoint joinPoint) throws Throwable{
+        System.out.println("【环绕增强】当前空闲内存" + Runtime.getRuntime().freeMemory()/(1024 * 1024) + "MB");
+        Object obj = joinPoint.proceed();
+        System.out.println("【环绕增强】当前空闲内存" + Runtime.getRuntime().freeMemory()/(1024 * 1024) + "MB");
+        return obj;
+    }
+
+    /**
+     * 异常抛出增强
+     * 在调用query时若抛出异常则打印异常信息
+     * @param ex 异常对象
+     */
+    public void exception(Throwable ex){
+        System.out.println("【异常抛出增强】" + "异常信息：" +ex.getMessage());
+    }
+
+    /**
+     * 最终增强
+     * 无论query方法是否抛出异常都打印当前时间
+     */
+    public void finallyAdvice(){
+        System.out.println("【最终增强】" + new Date().toString());
+    }
+}
+
+```
+
+修改`aspectj.xml`配置文件，添加新的**切面**
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/aop
+    http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- 配置目标对象，即被增强的对象 -->
+    <bean id="productDao" class="learningspring.aop.aspectj.xml.demo2.ProductDaoImpl"/>
+
+    <!-- 将增强类(切面类)交给Spring管理 -->
+    <bean id="productEnhancer" class="learningspring.aop.aspectj.xml.demo2.ProductEnhancer"/>
+    
+    <!-- 通过对AOP的配置完成对目标对象产生代理 -->
+    <aop:config>
+        <!-- 表达式配置哪些类的哪些方法需要进行增强 -->
+        <!-- 对ProductDaoImpl类中的save方法进行增强 -->
+        <!--
+        “*” 表示任意返回值类型
+        “..” 表示任意参数
+        -->
+        <!-- 前置增强的切入点配置 -->
+        <aop:pointcut id="pointcut1" expression="execution(* learningspring.aop.aspectj.xml.demo2.ProductDaoImpl.save(..))"/>
+
+        <!-- 后置增强的切入点配置 -->
+        <aop:pointcut id="pointcut2" expression="execution(* learningspring.aop.aspectj.xml.demo2.ProductDaoImpl.delete(..))"/>
+
+        <!-- 环绕增强的切入点配置 -->
+        <aop:pointcut id="pointcut3" expression="execution(* learningspring.aop.aspectj.xml.demo2.ProductDaoImpl.modify(..))"/>
+
+        <!-- 异常抛出增强的切入点配置 -->
+        <aop:pointcut id="pointcut4" expression="execution(* learningspring.aop.aspectj.xml.demo2.ProductDaoImpl.query(..))"/>
+
+        <!-- 配置切面 -->
+        <aop:aspect ref="productEnhancer">
+            <!-- 前置增强 -->
+            <!-- 实现在调用save方法之前调用checkPri方法来进行权限校验-->
+            <aop:before method="checkPri" pointcut-ref="pointcut1"/>
+
+            <!-- 后置增强 -->
+            <!-- returning里面的值必须和writeLog()方法里的参数名相同，本案例为result-->
+            <aop:after-returning method="writeLog" returning="result" pointcut-ref="pointcut2"/>
+
+            <!-- 环绕增强 -->
+            <aop:around method="monitor" pointcut-ref="pointcut3"/>
+
+            <!-- 异常抛出增强 -->
+            <aop:after-throwing method="exception" throwing="ex" pointcut-ref="pointcut4"/>
+
+            <!-- 最终增强 -->
+            <aop:after method="finallyAdvice" pointcut-ref="pointcut4"/>
+        </aop:aspect>
+    </aop:config>
+
+</beans>
+```
+
+最后运行测试代码，控制台输出结果：
+
+```
+【前置增强】权限校验execution(void learningspring.aop.aspectj.xml.demo2.ProductDao.save())
+添加商品
+删除商品
+【后置增强】写入日志 操作时间：Tue Mar 19 15:57:01 CST 2019
+【环绕增强】当前空闲内存183MB
+修改商品
+【环绕增强】当前空闲内存183MB
+查询商品
+【最终增强】Tue Mar 19 15:57:01 CST 2019
+【异常抛出增强】异常信息：/ by zero
+```
+
+#### AOP切入点表达式语法
+
+AOP切入点表达式是基于execution的函数完成的
+
+语法：**[访问修饰符] 方法返回值 包名.类名.方法名(参数)**
+
+“*” 表示任意返回值类型
+“..” 表示任意参数
+
++ `public void learningspring.aop.aspectj.xml.demo2.ProductDaoImpl.save(..) `：具体到某个增强的方法
++ `* *.*.*.*Dao.save(..) `：所有包下的所有以Dao结尾的类中的save方法都会被增强
++ `* learningspring.aop.aspectj.xml.demo2.ProductDaoImpl+.save(..) `：ProductDaoImpl及其子类的save方法都会被增强
++ `* learningspring.aop.aspectj.xml..*.*(..)`：xml包及其子包的所有类的方法都会被增强
+
+#### AspectJ的注解配置案例
+
+首先也是创建一个接口`ProductDao`
+
+```java
+/**
+ * ProductDao接口
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
+public interface ProductDao {
+
+    /**
+     * 添加商品
+     */
+    void save();
+
+    /**
+     * 查询商品
+     */
+    void query();
+
+    /**
+     * 修改商品
+     */
+    void modify();
+
+    /**
+     * 删除商品
+     */
+    String delete();
+}
+```
+
+然后创建一个Dao实现类`ProductDaoImpl`
+
+```java
+/**
+ * ProductDao的实现类
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
+public class ProductDaoImpl implements ProductDao {
+
+    @Override
+    public void save() {
+        System.out.println("添加商品");
+    }
+
+    @Override
+    public String delete() {
+        System.out.println("删除商品");
+        return new Date().toString();
+    }
+
+    @Override
+    public void modify() {
+        System.out.println("修改商品");
+    }
+
+    @Override
+    public void query() {
+        System.out.println("查询商品");
+        int a = 1/0;
+    }
+}
+```
+
+接着创建**增强类**`ProductEnhancer`，在该类里面使用注解
+
+使用`@Pointcut`注解可以配置切入点信息，在较多的方法都要使用同一个增强时，就可以配置一个切入点让目标方法都去引用
+
+`@Before`：前置增强
+
+`@AfterReturning`：后置增强，其中的returning的值必须和方法传入的参数名相同
+
+`@Around`：环绕增强
+
+`@AfterThrowing`：异常抛出增强，其中的throwing的值必须和方法传入的参数名相同
+
+`@After`：最终增强
+
+```java
+/**
+ * ProductDao的增强类(切面类)
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
 @Aspect
-public class AdviseDefine {
-    // 定义 advise
-    @Around("com.xys.aspect.PointcutDefine.dataAccessOperation()")
-    public Object doAroundAccessCheck(ProceedingJoinPoint pjp) throws Throwable {
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        // 开始
-        Object retVal = pjp.proceed();
-        stopWatch.stop();
-        // 结束
-        System.out.println("invoke method: " + pjp.getSignature().getName() + ", elapsed time: " + stopWatch.getTotalTimeMillis());
-        return retVal;
+public class ProductEnhancer {
+
+    /**
+     * 切入点配置
+     * 对ProductDaoImpl里的方法都增强
+     */
+    @Pointcut(value = "execution(* learningspring.aop.aspectj.annotation.demo2.ProductDaoImpl.*(..))")
+    private void pointcut1(){}
+
+    /**
+     * 前置增强案例
+     * 在调用save方法之前进行权限校验
+     * @param joinPoint 切入点对象
+     */
+    @Before(value = "execution(* learningspring.aop.aspectj.annotation.demo2.ProductDaoImpl.save())")
+    public void checkPri(JoinPoint joinPoint){
+        System.out.println("【前置增强】权限校验" + joinPoint);
+    }
+
+    /**
+     * 后置增强案例
+     * 在调用delete方法之后，写入日志记录操作时间
+     * @param result 目标方法返回的对象
+     */
+    @AfterReturning(returning = "result", value = "execution(* learningspring.aop.aspectj.annotation.demo2.ProductDaoImpl.delete())")
+    public void writeLog(Object result){
+        System.out.println("【后置增强】写入日志 操作时间：" + result.toString());
+    }
+
+    /**
+     * 环绕增强
+     * 在调用modify方法前后，显示性能参数
+     * @param joinPoint 切入点对象
+     * @throws Throwable 可抛出的异常
+     */
+    @Around(value = "execution(* learningspring.aop.aspectj.annotation.demo2.ProductDaoImpl.modify())")
+    public Object monitor(ProceedingJoinPoint joinPoint) throws Throwable{
+        System.out.println("【环绕增强】当前空闲内存" + Runtime.getRuntime().freeMemory()/(1024 * 1024) + "MB");
+        Object obj = joinPoint.proceed();
+        System.out.println("【环绕增强】当前空闲内存" + Runtime.getRuntime().freeMemory()/(1024 * 1024) + "MB");
+        return obj;
+    }
+
+    /**
+     * 异常抛出增强
+     * 在调用query时若抛出异常则打印异常信息
+     * @param ex 异常对象
+     */
+    @AfterThrowing(throwing = "ex", value = "execution(* learningspring.aop.aspectj.annotation.demo2.ProductDaoImpl.query())")
+    public void exception(Throwable ex){
+        System.out.println("【异常抛出增强】" + "异常信息：" +ex.getMessage());
+    }
+
+    /**
+     * 最终增强
+     * 无论ProductDaoImpl里的每个方法是否抛出异常都打印当前时间
+     */
+    @After(value = "pointcut1()")
+    public void finallyAdvice(){
+        System.out.println("【最终增强】" + new Date().toString());
     }
 }
 
-Advice(通知、切面)： 某个连接点所采用的处理逻辑，也就是向连接点注入的代码， AOP在特定的切入点上执行的增强处理。意思就是Advice是一个动作, 即一段 Java 代码, 这段 Java 代码是作用于 Point Cut 所限定的那些 Join Point 上的
+```
 
-相关注解介绍：
+编写测试方法
 
-@Around：环绕增强，相当于MethodInterceptor
+```java
+/**
+ * AspectJ的注解方式配置测试类
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
 
-@AfterReturning：后置增强，相当于AfterReturningAdvice，方法正常退出时执行
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("classpath:aspectj-annotation.xml")
+public class AppTest {
 
-@Before：标识一个前置增强方法，相当于BeforeAdvice的功能，相似功能的还有
+    @Resource(name = "productDao")
+    private ProductDao productDao;
 
-@AfterThrowing：异常抛出增强，相当于ThrowsAdvice
+    @Test
+    public void test(){
 
-@After: final增强，不管是抛出异常或者正常退出都会执行
+        productDao.save();
 
-1.@Before（目标方法执行之前）
+        productDao.delete();
 
-在Advice中内容是int，div调用之前输出的，因而用到了@Before
+        productDao.modify();
 
-创建新的java类ComputerAop，并添加@Aspect与@Component注释。
-
-public class ComputerAop{
-	
-	//目标方法执行之前
-	@Before("execution(public int xxx.xx.xxxxx.xxxxx.ComputerService.*(..))")
-	//xxx ComputerService前的路径。它会自动寻找ComputerService中所有public int的方法。
-	public void before(JoinPoint jp) {
-		Object[] args=jp.getArgs();
-	//获取目标方法对应参数
-		Signature sg=jp.getSignature();
-	//获取目标方法
-		String name=sg.getName();
-		System.out.println(this.getClass().getName()+":the "+name+" method begins.");
-		System.out.println(this.getClass().getName()+":parameters of the "+name+" method["+args[0]+","+args[1]+"].");
-	}
+        productDao.query();
+    }
 }
-执行结果如下
+```
+
+运行，控制台输出
+
+```
+【前置增强】权限校验execution(void learningspring.aop.aspectj.annotation.demo2.ProductDao.save())
+添加商品
+【最终增强】Tue Mar 19 16:01:06 CST 2019
+删除商品
+【最终增强】Tue Mar 19 16:01:06 CST 2019
+【后置增强】写入日志 操作时间：Tue Mar 19 16:01:06 CST 2019
+【环绕增强】当前空闲内存186MB
+修改商品
+【环绕增强】当前空闲内存186MB
+【最终增强】Tue Mar 19 16:01:06 CST 2019
+查询商品
+【最终增强】Tue Mar 19 16:01:06 CST 2019
+【异常抛出增强】异常信息：/ by zero
+```
 
 
 
-2.@After（目标方法执行完，无论是否出现错误异常，都会执行）
-
-@After("execution(public int xxx.xx.xxxxx.xxxxx.ComputerService.*(..))")
-	public void after(JoinPoint jp){
-		Signature sg=jp.getSignature();
-		String name=sg.getName();
-		System.out.println(this.getClass().getName()+":The "+name+"method ends");
-	}
-执行结果如下
 
 
+### 4.基于注解方式实现
 
-3.@AfterReturning（目标方法返回结果时，出现错误异常，不会执行）
+## 五、Spring事务管理
 
-@AfterReturning(value="("execution(public int xxx.xx.xxxxx.xxxxx.ComputerService.*(..))")",returning="result")
-	public void afterReturning(JoinPoint jp,Object result) {
-		Signature sg=jp.getSignature();
-		String name=sg.getName();
-		System.out.println(this.getClass().getName()+"the result of :"+name+" is "+result);
-	}
-当div方法传参数（1,1）时，return结果无措，正常执行。
+什么是事务
 
+事务：逻辑上的一组操作，组成这组操作的各个单元，要么全部成功，要么全部失败。
 
+事务的特性
 
-当div方法传参数（1,0）时，return结果有措，不执行。
++ 原子性：事务不可分割
++ 一致性：事务执行前后数据完整性保持一致
++ 隔离性：一个事务的执行不应该受到其他事务的干扰
++ 持久性：一旦事务结束，数据就持久化到数据库
 
-4.@AfterThrowing（目标方法出现错误异常执行）
+不考虑隔离性引发的安全性问题
 
-@AfterThrowing(value="execution(public int xxx.xx.xxxxx.xxxxx.ComputerService.*(..))",throwing="e")
-	public void afterThrowing(JoinPoint jp,Exception e) {
-		System.out.println(e.getMessage());
-	}
-结果如下，打印出了错误。
++ 读问题
+  + 脏读：A事务读到B事务未提交的数据
+  + 不可重复读：B事务在A事务两次读取数据之间，修改了数据，导致A事务两次读取结果不一致
+  + 幻读/虚读：B事务在A事务批量修改数据时，插入了一条新的数据，导致数据库中仍有一条数据未被修改。
++ 写问题
+  + 丢失更新：
 
+解决读问题
 
++ 设置事务的隔离级别
+  + `Read uncommitted`：未提交读，任何读问题都解决不了
+  + `Read committed`：已提交读，解决脏读，但是不可重复读和幻读有可能发生
+  + `Repeatable read`：重复读，解决脏读和不可重复读，但是幻读有可能发生
+  + `Serializable`：解决所有读问题，因为禁止并行执行
 
-5.@Around（可以实现以上所有功能）
+### Spring事务管理API
 
-@Around(value = "execution(public int xxx.xx.xxxxx.xxxxx.ComputerService.*(..))")
-public object around(ProceedingJoinPoint pjp) {
-    object [] args = pjp.getArgs();//传入目标方法的参数
-    signature sg = pjp.getSignature();
-    String name = sg.getName();
-    System.out .print1n( this. getClass().getName()+": The "+name+" method begins.");
-    System.out.println(this.getClass().getName()+": Parameters of the "+name+" method: [" +args[0]+"," +args[1]+"]");
-try {
-    try {
-        object object = pjip. getTarget();//目标类创建的对象
-        System.out.print1n("*******" +object. getClass() . getName());
-        object result =pjp. proceed();//调用目标方法，并且返回目标方法的结果
-        System.out.println(this.getClass() .getName()+": Result of the "+name+" method: " +result);
-        return result;
-}finally {
-    System.out.println(this.getClass().getName()+": The "+name+" method ends.");
-} catch (Throwable e) {
-    System.out.println(e.getMessage();|
-    return -1;
++ `PlatformTransactionManager`：平台事务管理器
+
+  + `DataSourceTransactionManager`：底层使用JDBC管理事务
+
++ `TransactionDefinition`：事务定义信息
+
+  ​	用于定义事务相关的信息，隔离级别，超时信息，传播行为，是否只读……
+
++ `TransactionStatus`：事务的状态
+
+  ​	用于记录在事务管理过程中，事务的状态
+
+API的关系：
+
+Spring在进行事务管理的时候，首先**平台事务管理器**根据**事务定义信息**进行事务的管理，在事务管理过程中，产生各种状态，将这些状态信息记录到**事务状态对象**
+
+Spring事务的传播行为
+
+首先假设一个背景，Service1里的x()方法已经定义了一个事务，Service2里的y()方法也有一个事务，但现在新增一行代码在Service2的y()方法中要先调用Service1里的x()方法然后再执行本身的方法。这时就涉及到**事务的传播行为**。
+
+![](https://blogpictrue-1251547651.cos.ap-chengdu.myqcloud.com/blog/20190321110709.png)
+
+Spring中提供了7种传播行为
+
+**假设x()方法称为A，y()方法称为B**
+
++ 保证多个操作在同一个事务中
+  + **`PROPAGATION_REQUIRED`**(\*)：Spring事务隔离级别的默认值。如果A中有事务，则使用A中的事务。如果没有，则创建一个新的事务，将操作包含进来。
+  + `PROPAGATION_SUPPORTS`：支持事务。如果A中有事务，使用A中的事务。如果A没有事务，则不使用事务。
+  + `PROPAGATION_MANDATORY`：如果A中有事务，使用A中的事务。如果没有事务，则抛出异常。
++ 保证多个事务不在同一个事务中
+  + **`PROPAGATION_REQUIRES_NEW`**(\*)：如果A中有事务，将A的事务挂起，创建新事务，只包含自身操作。如果A中没有事务，创建一个新事物，包含自身操作。
+  + `PROPAGATION_NOT_SUPPORTED`：如果A中有事务，将A的事务挂起，不使用事务。
+  + `PROPAGATION_NEVER`：如果A中有事务，则抛出异常。
++ 嵌套式事务
+  + **`PROPAGATION_NESTED`**(\*)：嵌套事务，如果A中有事务，则按照A的事务执行，执行完成后，设置一个保存点，再执行B中的操作，如果无异常，则执行通过，如果有异常，则可以选择回滚到初始位置或者保存点。
+
+Spring事务管理案例——转账情景
+
+转账情景实现
+
+首先创建接口`AccountDao`，定义两个方法分别是`out`和`in`
+
+```java
+/**
+ * AccountDao
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
+
+public interface AccountDao {
+
+    /**
+     * 转出
+     *
+     * @param from  转出账户
+     * @param money 转出金额
+     */
+    void out(String from, double money);
+
+    /**
+     * 转入
+     *
+     * @param to    转入账户
+     * @param money 转入金额
+     */
+    void in(String to, double money);
+}
+```
+
+接着创建实现类`AccountDaoImpl`实现`out`和`in`方法并且继承`JdbcSupport`类。这样就可以直接使用父类的`JDBCTemplate`对象。
+
+```java
+/**
+ * AccountDao实现类
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
+public class AccountDaoImpl extends JdbcDaoSupport implements AccountDao {
+
+    @Override
+    public void out(String from, double money) {
+        this.getJdbcTemplate().update("UPDATE account SET money = money - ? WHERE name = ?", money, from);
+    }
+
+    @Override
+    public void in(String to, double money) {
+        this.getJdbcTemplate().update("UPDATE account SET money = money + ? WHERE name = ?", money, to);
+    }
 }
 
-我们为什么要使用AOP?
-举个例子，你想给你的网站加上鉴权，
+```
 
-对某些url，你认为不需要鉴权就可以访问，
+然后创建接口`AccountrService`，定义`transfer`方法
 
-对于某些url，你认为需要有特定权限的用户才能访问
+```java
+/**
+ * AccountService
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
+public interface AccountService {
 
-如果你依然使用OOP，面向对象，
+    /**
+     * 转账
+     * @param from 转出账户
+     * @param to 转入账户
+     * @param money 交易金额
+     */
+    void transfer(String from, String to, Double money);
+}
 
-那你只能在那些url对应的Controller代码里面，一个一个写上鉴权的代码而如果你使用了AOP呢？
+```
 
-那就像使用Spring Security进行安全管理一样简单（更新：Spring Security的拦截是基于Servlet的Filter的，不是aop，不过两者在使用方式上类似）：
+再创建类`AccountServiceImpl`实现该接口，并声明`AccountDao`引用并创建`set`方法
 
-protected void configure(HttpSecurity http) throws Exception {     
-    http         
-        .authorizeRequests()            
-        .antMatchers("/static","/register").permitAll() 
-        .antMatchers("/user/**").hasRoles("USER", "ADMIN")
-这样的做法，对原有代码毫无入侵性，这就是AOP的好处了，把和主业务无关的事情，放到代码外面去做。
+```java
+/**
+ * AccountService实现类
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
+public class AccountServiceImpl implements AccountService {
+
+    private AccountDao accountDao;
+
+    public void setAccountDao(AccountDao accountDao) {
+        this.accountDao = accountDao;
+    }
+
+    @Override
+    public void transfer(String from, String to, Double money) {
+        accountDao.out(from, money);
+        accountDao.in(to, money);
+    }
+}
+```
+
+最后创建配置文件`spring-tx-programmatic.xml`，用来管理Bean。
+
+引入数据库连接文件，配置数据源，创建Bean对象`accountDao`将数据源`dataSource`注入到`accountDao`中，再创建Bean对象`accountService`，将`accountDao`注入。
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="                                             
+            http://www.springframework.org/schema/beans  
+            http://www.springframework.org/schema/beans/spring-beans.xsd  
+            http://www.springframework.org/schema/context   
+            http://www.springframework.org/schema/context/spring-context.xsd  
+            http://www.springframework.org/schema/tx 
+            http://www.springframework.org/schema/tx/spring-tx.xsd
+            http://www.springframework.org/schema/aop
+            http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- 编程式事务管理配置文件 -->
+
+    <!-- 配置Service -->
+    <bean id="accountService" class="learningspring.transaction.programmatic.AccountServiceImpl">
+        <property name="accountDao" ref="accountDao"/>
+    </bean>
+
+    <!-- 配置Dao -->
+    <bean id="accountDao" class="learningspring.transaction.programmatic.AccountDaoImpl">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- 引入数据库配置文件 -->
+    <context:property-placeholder location="db.properties"/>
+
+    <!-- 配置C3P0连接池 -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${jdbc.driverClassName}"/>
+        <property name="jdbcUrl" value="${jdbc.url}"/>
+        <property name="user" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+</beans>
+```
+
+到此一个转账模拟业务就实现了，数据库表依然使用前面创建的`account`表，先查询当前数据库的数据。
+
+![](https://blogpictrue-1251547651.cos.ap-chengdu.myqcloud.com/blog/20190321124514.png)
+
+编写测试方法，实现让姓名为Bob的账户向Jack转账1000元。
+
+```java
+/**
+ * 编程式事务测试类
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(value = "classpath:spring-tx-programmatic.xml")
+public class AppTest {
+
+    @Resource(name = "accountService")
+    private AccountService accountService;
+
+    @Test
+    public void test(){
+        accountService.transfer("Bob","Jack",1000d);
+    }
+}
+```
+
+运行结果
+
+![](https://blogpictrue-1251547651.cos.ap-chengdu.myqcloud.com/blog/20190321124630.png)
+
+现在对类`AccountServiceImpl`里的`transfer`方法进行修改，让其发生异常，再观察结果
+
+```java
+/**
+ * AccountService实现类
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
+public class AccountServiceImpl implements AccountService {
+
+    private AccountDao accountDao;
+
+    public void setAccountDao(AccountDao accountDao) {
+        this.accountDao = accountDao;
+    }
+
+    @Override
+    public void transfer(String from, String to, Double money) {
+        accountDao.out(from, money);
+        // 抛出异常
+        int i = 1/0;
+        accountDao.in(to, money);
+    }
+
+}
+
+```
+
+查询数据库数据
+
+![](https://blogpictrue-1251547651.cos.ap-chengdu.myqcloud.com/blog/20190321125027.png)
+
+这时Bob账户的钱就少了1000元，而Jack账户也没有增加1000元。
+
+所以就需要事务来进行管理。
+
+### 编程式事务
+
+所谓编程式事务，就是要在源码中编写事务相关的代码。实现编程式事务，首先要在`AccountServiceImpl`中声明`TransactionTemplate`对象，并创建set方法。然后修改`transfer`参数列表所有参数都用`final`(因为使用了匿名内部类)修饰，并修改方法体内容。
+
+```java
+/**
+ * AccountService实现类
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
+public class AccountServiceImpl implements AccountService {
+
+    private AccountDao accountDao;
+
+    private TransactionTemplate transactionTemplate;
+
+    public void setAccountDao(AccountDao accountDao) {
+        this.accountDao = accountDao;
+    }
+    public void setTransactionTemplate(TransactionTemplate transactionTemplate) {
+        this.transactionTemplate = transactionTemplate;
+    }
+
+    @Override
+    public void transfer(final String from, final String to, final Double money) {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                accountDao.out(from, money);
+                // 抛出异常
+                int i = 1/0;
+                accountDao.in(to,money);
+            }
+        });
+    }
+}
+```
+
+然后修改`spring-tx-programmatic.xml`文件，创建Bean对象`transactionManager`和`transactionTemplate`，并将`transactionTemplate`注入到`accountService`中。
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="                                             
+            http://www.springframework.org/schema/beans  
+            http://www.springframework.org/schema/beans/spring-beans.xsd  
+            http://www.springframework.org/schema/context   
+            http://www.springframework.org/schema/context/spring-context.xsd  
+            http://www.springframework.org/schema/tx 
+            http://www.springframework.org/schema/tx/spring-tx.xsd
+            http://www.springframework.org/schema/aop
+            http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- 编程式事务管理配置文件 -->
+
+    <!-- 配置Service -->
+    <bean id="accountService" class="learningspring.transaction.programmatic.AccountServiceImpl">
+        <property name="accountDao" ref="accountDao"/>
+        <property name="transactionTemplate" ref="transactionTemplate"/>
+    </bean>
+
+    <!-- 配置Dao -->
+    <bean id="accountDao" class="learningspring.transaction.programmatic.AccountDaoImpl">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- 引入数据库配置文件 -->
+    <context:property-placeholder location="db.properties"/>
+
+    <!-- 配置C3P0连接池 -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${jdbc.driverClassName}"/>
+        <property name="jdbcUrl" value="${jdbc.url}"/>
+        <property name="user" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+
+    <!-- 配置事务管理器 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- 配置模板 -->
+    <bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+        <property name="transactionManager" ref="transactionManager"/>
+    </bean>
+</beans>
+```
+
+此时异常依然存在，数据库数据仍然是上次执行的结果状态
+
+![](https://blogpictrue-1251547651.cos.ap-chengdu.myqcloud.com/blog/20190321125027.png)
+
+再次运行测试方法，并查询结果，观察是否发生变化
+
+![](https://blogpictrue-1251547651.cos.ap-chengdu.myqcloud.com/blog/20190321130039.png)
+
+现在就实现了编程式事务，当出现异常时，数据库的数据就不会被修改。
+
+### 声明式事务
+
+#### XML配置方式
+
+声明式事务即通过配置文件实现，利用的就是Spring的AOP
+
+修改类`AccountServiceImpl`，删除`TransactionTemplate`对象，并修改`transfer`方法，保留异常代码
+
+```java
+/**
+ * AccountService实现类
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
+public class AccountServiceImpl implements AccountService{
+
+    private AccountDao accountDao;
+
+    public void setAccountDao(AccountDao accountDao) {
+        this.accountDao = accountDao;
+    }
+
+    @Override
+    public void transfer(String from, String to, Double money) {
+        accountDao.out(from, money);
+        int i = 1/0;
+        accountDao.in(to,money);
+
+    }
+}
+```
+
+然后创建配置文件`spring-tx-declarative.xml`，配置数据源即Bean对象，然后配置事务管理器。
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd
+            http://www.springframework.org/schema/tx
+            http://www.springframework.org/schema/tx/spring-tx.xsd
+            http://www.springframework.org/schema/aop
+            http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- 声明式事务管理配置文件 -->
+
+    <!-- 配置Service -->
+    <bean id="accountService" class="learningspring.transaction.declarative.AccountServiceImpl">
+        <property name="accountDao" ref="accountDao"/>
+    </bean>
+
+    <!-- 配置Dao -->
+    <bean id="accountDao" class="learningspring.transaction.declarative.AccountDaoImpl">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- 引入数据库配置文件 -->
+    <context:property-placeholder location="db.properties"/>
+
+    <!-- 配置C3P0连接池 -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${jdbc.driverClassName}"/>
+        <property name="jdbcUrl" value="${jdbc.url}"/>
+        <property name="user" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+    
+    <!-- 配置事务管理器 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+</beans>
+```
+
+接着就配置事务的增强，配置文件中加入以下配置
+
+```xml
+<!-- 配置事务的增强 -->
+<tx:advice id="txAdvice" transaction-manager="transactionManager">
+    <tx:attributes>
+        <!-- 配置事务的规则 根据实际业务修改-->
+        <tx:method name="*" propagation="REQUIRED"/>
+    </tx:attributes>
+</tx:advice>
+
+<!-- AOP的配置 -->
+<aop:config>
+    <aop:pointcut id="pointcut1" expression="execution(* learningspring.transaction.declarative.AccountServiceImpl.*(..))"/>
+    <aop:advisor advice-ref="txAdvice" pointcut-ref="pointcut1"/>
+</aop:config>
+```
+
+先查看当前数据库数据
+
+![](https://blogpictrue-1251547651.cos.ap-chengdu.myqcloud.com/blog/20190321130039.png)
+
+编写测试方法
+
+```java
+/**
+ * 声明式事务配置测试类
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(value = "classpath:spring-tx-declarative.xml")
+public class AppTest {
+
+    @Resource(name = "accountService")
+    private AccountService accountService;
+
+    @Test
+    public void test(){
+        accountService.transfer("Bob","Jack",1000d);
+    }
+}
+```
+
+运行查看结果，是否变化
+
+![](https://blogpictrue-1251547651.cos.ap-chengdu.myqcloud.com/blog/20190321132512.png)
+
+至此就实现了声明式事务XML方式的配置。
+
+#### 注解配置方式
+
+Spring的事务配置仍然支持注解配置
+
+继续沿用`spring-tx-declarative.xml`文件，把事务增强和AOP相关的配置注释，并开启注解事务。
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd
+            http://www.springframework.org/schema/tx
+            http://www.springframework.org/schema/tx/spring-tx.xsd
+            http://www.springframework.org/schema/aop
+            http://www.springframework.org/schema/aop/spring-aop.xsd">
 
 
-所以当你下次发现某一行代码经常在你的Controller里出现，比如方法入口日志打印，那就要考虑使用AOP来精简你的代码了。
+    <!-- 声明式事务管理配置文件 -->
+
+    <!-- 配置Service -->
+    <bean id="accountService" class="learningspring.transaction.declarative.AccountServiceImpl">
+        <property name="accountDao" ref="accountDao"/>
+    </bean>
+
+    <!-- 配置Dao -->
+    <bean id="accountDao" class="learningspring.transaction.declarative.AccountDaoImpl">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- 引入数据库配置文件 -->
+    <context:property-placeholder location="db.properties"/>
+
+    <!-- 配置C3P0连接池 -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${jdbc.driverClassName}"/>
+        <property name="jdbcUrl" value="${jdbc.url}"/>
+        <property name="user" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+
+    <!-- 配置事务管理器 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    
+    <!-- 配置事务的增强 -->
+    <!--<tx:advice id="txAdvice" transaction-manager="transactionManager">-->
+        <!--<tx:attributes>-->
+            <!-- 配置事务的规则 -->
+            <!--<tx:method name="*" propagation="REQUIRED"/>-->
+        <!--</tx:attributes>-->
+    <!--</tx:advice>-->
+
+    <!-- AOP的配置 -->
+    <!--<aop:config>-->
+        <!--<aop:pointcut id="pointcut1" expression="execution(* learningspring.transaction.declarative.AccountServiceImpl.*(..))"/>-->
+        <!--<aop:advisor advice-ref="txAdvice" pointcut-ref="pointcut1"/>-->
+    <!--</aop:config>-->
+    
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+</beans>
+```
+
+接下来就可以在业务层类上使用事务管理的注解了。修改`AccountServiceImpl`类，添加`@Transactional`注解
+
+```java
+/**
+ * AccountService实现类
+ *
+ * @author Chen Rui
+ * @version 1.0
+ **/
+@Transactional(rollbackFor = Exception.class)
+public class AccountServiceImpl implements AccountService{
+
+    private AccountDao accountDao;
+
+    public void setAccountDao(AccountDao accountDao) {
+        this.accountDao = accountDao;
+    }
 
 
-AOP是OOP的有益补充
+    @Override
+    public void transfer(String from, String to, Double money) {
+        accountDao.out(from, money);
+        int i = 1/0;
+        accountDao.in(to,money);
 
+    }
+}
+```
 
-基于Java语言的web开发，本质是用面向对象的组织，面向过程的逻辑，来解决问题。应用实践中灵活具体，不拘泥，不教条。
-
-总结： Spring实现的AOP是代理模式，给调用者使用的实际是已经过加工的对象，你编程时方法体里只写了A，但调用者拿到的对象的方法体却是xAy。x和y总还是需要你来写的，这就是增强。x和y具体在什么时候被调用总还是需要你来规定的，虽然是基于约定的声明这种简单的规定，这就是切点。
+再次运行测试方法，数据库也不会发生改变。
