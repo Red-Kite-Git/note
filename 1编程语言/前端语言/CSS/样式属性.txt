@@ -1,0 +1,140 @@
+# 样式属性
+
+## 一、通用属性
+
+id 属性 相当于给元素起了名字或者编号,在同一个页面中id的属性值一定唯一
+name属性 给元素起了名字,在同一个要么中name的属性值是可以重复的
+一般情况下 id属性给前端的JS代码使用的   name属性给后端接口使用的
+
+class=""
+id=""
+name=""
+
+
+## 二、文本
+字体大小：	`font-size:value;	number(value单位px/em/rem/%)`
+字体粗细：	`font-weight:value;	value: 100-900  正常normal(400) 粗体bold(700) 更粗bolder(根据normal) 更细lighter(根据normal)`
+字体样式：	`font-family:value;	value: 在电脑的font库中的字体名字 `    多种字体用逗号隔开
+字体风格：	`font-style:value;	value: 正常normal 斜体italic/oblique `
+*字体相关的可以合并一起写，要按照  风格>粗细>大小>类型 顺序写*
+
+颜色：		`color:value;	value: 颜色英文名称`
+`#十六进制表示的颜色   rgb(红0-255,绿0-255,蓝0-255)   rgba(红0-255,绿0-255,蓝0-255,透明度0-1)`
+水平对齐：	`text-align:value;	value: 居中对齐center 靠左对齐left 靠右对齐right 两端对齐justify`
+垂直对齐：	`???`
+首行缩进：	`text-indent:value;		number(value单位px/em/rem/%)`
+文字修饰：	`text-decoration:value;	value: 默认为无none  下划线underline 删除线line-through 上划线overline`
+行高：			`line-height:value;		number(value单位px/em/rem/%)  normal`
+字符距离：	`letter-spacing:value;		number(value单位px/em/rem/%)  normal`
+
+
+## 三、背景
+背景颜色：	`backgroud-color:value;		value: 参考color:value;`
+背景图片：	`background-image: url("img/arrow-right.gif");`
+图片平铺方式：	`background-repeat:value;	value: 默认全部平铺repeat 不平铺no-repeat   水平平铺repeat-x   垂直平铺repeat-y`
+图片位置：	`background-position: Xvalue Yvalue;`
+
+Xvalue: Xpos单位px   X%   left center right  Yvalue: Ypos单位px   Y%   top center bottom
+图片大小：	background-size:value;		value: 默认auto   完全覆盖元素cover   完全包含在元素contain
+图片固定与滚动：	background-attachment
+	/*   背景相关的可以合并一起写，background:color url() position;   */
+	background: url('images/footer-bg.jpg') no-repeat center bottom / cover fixed;
+
+
+## 四、盒模型
+内容：	width:value;	value:number px（指定像素）   number%（相对于浏览器页面的百分比）
+		height:value;	value: 参考width:value;
+边框：	border-width:value;		value: 像素值number px   细thin   中medium   粗thick
+		border-style:value;		value: 实线solid   虚线dashed   点线dotted   双线double
+		border-color:value;		value: 参考color:value;
+		/*   边框相关的可以合并一起写，border: width style color;   */
+		/*   边框可以单独设置四个边框的属性（不指定默认为四个）
+			上边框：	border-top-属性: ;
+			右边框：	border-right-属性: ;
+			下边框：	border-bottom-属性: ;
+			左边框：border-left-属性: ;
+		*/
+内边距：	padding-top:value;    padding-right:value;    padding-bottom:value;    padding-left:value;
+		value: 像素值number px   自动auto
+		/*	内边距可以简写（不指定默认为四个）
+			padding: value;							四个方向内边距均为value
+			padding: value1 value2;					上下内边距为value1  左右内边距为value2
+			padding: value1 value2 value3 value4;	上、右、下、左（顺时针）的内边距分别为value1、2、3、4
+		*/
+外边距：	margin-top:value;    margin-right:value;    margin-bottom:value;    margin-left:value;
+		value: 像素值number px   自动auto
+		/*	外边距可以简写（不指定默认为四个）
+			margin: value;							四个方向外边距均为value
+			margin: value1 value2;					上下外边距为value1  左右外边距为value2
+			margin: value1 value2 value3 value4;	上、右、下、左（顺时针）的外边距分别为value1、2、3、4
+		*/
+模型的计算方式：		box-sizing:value;		value: （默认）内容&内边距&边框&外边距 content-box   
+												   （去除外边框）内容&内边距&边框  border-box
+	/*   默认值
+	总宽度 = width + padding-left + padding-right + border-left + border-right + margin-left + margin-right。
+	总高度 = height + padding-top + padding-bottom + border-top + border-bottom + margin-top + margin-bottom。
+	*/
+
+## 五、链接伪类
+需要按照:link - :visited - :hover - :active的顺序写
+a:link			未被访问的链接的样式
+a:visited		已经访问过的链接的样式
+a:hover			鼠标指针悬停在链接上时触发的样式
+a:active		链接被激活时（鼠标按下但尚未松开）的样式
+a:focus			链接获得焦点时的样式（通过键盘导航/使用Tab键在链接之间切换焦点）
+
+
+## 六、列表样式
+list-style-type:value;   无none
+<ul>：默认实心圆disc   空心圆circle   方块square
+<ol>：默认阿拉伯数字decimal   小写罗马数字lower-roman   大写罗马数字upper-roman   小写英文字母lower-alpha   大写英文字母upper-alpha
+list-style-img（无用）
+list-style-op（无用）
+
+display布局
+
+常见布局：上下、上中下、上左右下、
+
+### 1.文档流布局
+（display:block;）
+元素默认按照其在 HTML 文档中的顺序排列，形成文档流
+块级元素（如<div>、<p>、<h1>等）会独占一行，从左到右填满父元素的宽度，从上到下依次排列
+行内元素（如<span>、<a>等）会在一行内排列，根据内容占据空间，当一行排满时会换行
+
+### 2.浮动布局
+浮动元素脱离文档流，到文档流之上的图层，其他的元素重新排序形成新的文档流
+/*
+所有的子元素都浮动后父div没有任何内容会塌陷
+解决方法：1.给父div添加高度属性  
+		 2.在父div最后追加一个块元素并设置.clear{ clear:both; }
+		 ★3★.给父div添加伪类选择器.clear:after{ display:block;  content:"";   clear:both; }
+		 4.overflow
+*/
+元素浮动
+float:value;	value: 默认不浮动none   向左浮动left   向右浮动right
+清除浮动元素对文档流的影响
+clear:value;	value: 默认不清除none   不允许左侧left   不允许右侧right   不允许两侧both
+元素内容超出元素框时的处理
+overflow:value;		value: 默认溢出展现 visible   
+						   溢出隐藏 hidden   
+						   内容会被修剪，但会提供滚动条以便查看超出的内容，无论内容是否超出，都会显示滚动条 scroll
+						   内容会被修剪，仅在内容超出元素框时显示滚动条 auto
+	/*   可以overflow-x 和 overflow-y 分别设置水平和垂直方向的溢出处理方式   */
+
+### 3.定位布局
+元素可以使用position:value;属性进行定位，value有以下几种：
+static（默认）：元素按照文档流布局，不受top、right、bottom、left和z-index属性的影响。
+relative：相对定位，元素相对于其正常位置（未定位的位置）进行偏移。★不脱离文档流 提高一个图层★
+absolute：绝对定位，元素相对于最近的已定位祖先元素（如果没有则相对于浏览器窗口）进行定位。★脱离文档流 提高一个图层★
+fixed：固定定位，元素相对于浏览器窗口进行定位，不随页面滚动而移动。
+	使用top、right、bottom、left属性设置偏移量	表示相对于目标距离number px（相反的 top即向下位移）
+	top:number px;   right:number px;   bottom:number px;   left:number px;
+
+默认是没有层级的，后创建的在上，可以使用z-index调节层级
+设置图层的层级：z-index:value;		value: number
+设置图层透明度：opactiy:number 0-1;
+
+### 4.弹性布局
+（display: flex;）
+### 5.网格布局
+（display: grid;）

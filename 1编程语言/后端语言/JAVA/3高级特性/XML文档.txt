@@ -1,0 +1,40 @@
+DocumentBuilder抽象类     javax.xml.parsers.DocumentBuilder
+DocumentBuilderFactory抽象类      javax.xml.parsers.DocumentBuilderFactory
+
+NodeList接口      org.w3c.dom.NodeList
+    Node item(int index)  //获取集合中指定索引的节点
+    int getLength()      //获取节点的个数
+
+Node接口      org.w3c.dom.Node
+    NodeList getChildNodes()   //获取所有子节点
+    short getNodeType()     //获取节点类型
+    String getNodeName()    //获取节点名称
+    String getNodeValue()   //获取节点值
+    Node appendChild(Node newChild)    //添加子节点
+    void setTextContent(String textContent)    //设置节点值
+    Node removeChild(Node oldChild)    //删除子节点
+
+    Document接口       org.w3c.dom.Document
+        NodeList getElementsByTagName   //获取指定标签名的所有节点
+        Element createElement(String tagName)    //创建元素节点
+
+    Element接口      org.w3c.dom.Element
+        String getNodeName()    //获取标签名
+        String getAttribute(String name)     //获取指定属性名的属性值
+        void setAttribute(String name,String value)    //设置属性值
+
+解析XML文件的三种方式
+    1. DOM方式  将XML的标签以倒立的树的形式 加载到内存中 操作
+    (1).解析XML成Document对象
+    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder documentBuilder = factory.newDocumentBuilder();
+    Document document = documentBuilder.parse(path);
+    (2).Document对象覆盖存入XML文件
+    TransformerFactory factory = TransformerFactory.newInstance();
+    Transformer transformer = factory.newTransformer();
+    DOMSource source = new DOMSource(document);
+    StreamResult result = new StreamResult(path);
+    transformer.transform(source, result);
+
+    2. SAX方式
+    3. DOM4J方式

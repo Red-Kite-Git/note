@@ -1,0 +1,58 @@
+Collection 接口：
+
+```JAVA
+    sort();              //排序
+    binarySearch();      //二分法查找
+    max()\min();         //查找最大\最小值
+    reverse();           //反转元素顺序
+    clear()              //清空集合
+    isEmpty()            //判断集合是否为空
+    toArray()            //将集合转换为数组
+
+    iterator()           //返回一个迭代器对象，用于遍历集合中的元素
+```
+
+List接口：
+    ArrayList类  常用方法：
+```
+    boolean add(Object o)           //在列表的末尾顺序添加元素
+    void add(int index,Object o)    //在指定的索引位置添加元素
+    int size()                      //返回列表中元素个数
+    Object get(int index)           //返回指定索引位置的元素
+    boolean contains(Object o)      //判断列表中是否包含指定的元素
+    boolean remove(Object o)        //从列表中删除指定的元素
+    Object remove(int index)        //删除指定索引位置的元素
+```
+LinkedList类  独有方法：
+
+```
+    void  addFirst(Object o)        //在列表头部添加元素
+    void  addLast(Object o)         //在列表尾部添加元素
+    Object  getFirst()              //获取列表头部元素
+    Object  getLast()               //获取列表尾部元素
+    Object  removeFirst()           //删除列表头部元素
+    Object  removeLast()            //删除列表尾部元素
+```
+Set接口：
+
+
+​     HashSet类：
+
+​     TreeSet类：
+
+
+Map接口：
+
+```JAVA
+Object put(Object key, Object val)  //以“键-值”对的方式进行存储
+Object get(Object key)              //根据键返回相关联的值，如果不存在指定的键，返回null
+Object remove(Object key)           //删除由指定的键映射的“键-值对”
+int size()                          //返回Map中“键-值对”的数量
+Set keySet()                        //返回Map中所有键构成的Set集合
+Collection values()                 //返回Map中所有值构成的Collection
+boolean containsKey(Object key)     //判断Map中是否存在指定的键
+```
+
+HashMap类：
+
+TreeMap类：

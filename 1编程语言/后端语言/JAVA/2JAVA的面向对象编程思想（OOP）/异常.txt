@@ -1,0 +1,103 @@
+#异常
+根据不同的异常进行相应的处理，而不会就此中断程序运行
+传统处理程序中的异常：代码臃肿，难以维护
+JAVA异常处理机制：5个关键字来实现的：try、catch、 finally、throw、throws
+
+## 一、异常相关代码
+
+### 1.try-catch结构：
+
+```java
+try {
+    //代码段1
+    //可能产生异常的代码段2
+    //代码段3
+} catch (异常类型 e1) {
+    //处理异常的代码块1
+    //如果try中的代码没有产生异常则跳过catch中的代码块
+    //异常类型不一致会导致程序中断
+
+    //可以加入自定义处理信息
+    <System.err.println("出现错误：XXX!");>
+} catch (异常类型 e2) {
+	//处理异常的代码块2
+} catch (Exception e3) {
+	//处理异常的代码块3
+}
+```
+>TIP：排列catch 语句的顺序
+>先子类后父类
+>发生异常时按顺序逐个匹配
+>只执行第一个与异常类型匹配的catch语句
+
+### 2.try-catch-finally结构:
+
+```java
+try {
+        代码段 1
+        产生异常的代码段 2
+    } catch (异常类型 e) {
+        对异常进行处理的代码段3
+        return;
+        //即使有return跳出方法，程序依然是先执行完finally再退出
+        <System.exit(0)>
+        //唯一可以使finally不执行的情况，终止线程
+    }finally{
+        代码段 4
+    }
+```
+
+>TIP：
+>try-catch-finally结构中try语句块是必须的，catch、finally语句块均可选，但两者至少出现之一
+>大多数情况都是使用try—catch或try-catch-finally
+
+### 3.throw与throws
+
+```java
+throw：  在方法体中抛出异常
+```
+
+```java
+throws： 在方法签名中声明异常，调用者需要处理抛出的异常才能正常调用方法
+```
+
+
+
+##二、异常类型
+
+### 1.异常关系
+
+​         Object类
+​            |
+​       Throwable类
+​         可抛出的
+   error和Exception的父类
+​      /              \
+   error           Exception类
+
+ 仅靠程序本身无法       由Java应用程序
+ 恢复的严重错误        抛出和处理的非严重错误
+ 无法在java中处理       /              \
+                 Checked异常       RuntimeException类
+                    检查异常             运行时异常
+                 必须处理该类异常       不要求必须做出处理
+
+自定义异常类：继承Throwable类/继承Exception类 或者RuntimeException类
+
+### 2.常见异常类型：
+
+ArithmeticException	                算术错误情形，如以零作除数
+ArrayIndexOutOfBoundsException	    数组下标越界
+NullPointerException	            空指针异常，尝试访问（调用）null对象成员的方法或属性
+ClassNotFoundException	            不能加载所需的类
+IllegalArgumentException	        方法接收到非法参数
+ClassCastException	                对象强制类型转换出错
+NumberFormatException	            数值格式转换异常，如把"abc"转换成数字
+
+
+
+## 三、异常相关的方法
+
+void printStackTrace();        输出异常的堆栈信息，显示出程序运行到当前类的执行流程
+String getMessage();           返回异常信息描述字符串，是printStackTrace()输出信息的一部分
+
