@@ -1,0 +1,122 @@
+Collection 接口：
+    int size();                                             //返回集合中元素的个数
+    boolean isEmpty();                                      //判断集合是否为空
+    boolean contains(Object o);                             //判断集合中是否包含指定的元素
+    Iterator<E> iterator();                                 //返回一个迭代器对象，用于遍历集合中的元素
+    Object[] toArray();                                     //将集合中的元素存储到数组中
+    <T> T[] toArray(T[] a);                                 //将集合中的元素存储到数组中，并返回数组
+    boolean add(E e);                                       //向集合中添加元素
+    boolean remove(Object o);                               //从集合中移除指定的元素
+    boolean containsAll(Collection<?> c);                   //判断集合中是否包含指定的集合中的所有元素
+    boolean addAll(Collection<? extends E> c);              //将指定的集合中的所有元素添加到当前集合中
+    boolean removeAll(Collection<?> c);                     //移除当前集合中包含在指定集合中的所有元素
+    boolean retainAll(Collection<?> c);                     //保留当前集合中包含在指定集合中的所有元素，移除其他元素
+    void clear();                                           //清空集合中的所有元素
+    boolean equals(Object o);                               //判断当前集合与指定的对象是否相等
+    int hashCode();                                         //返回当前集合的哈希值
+
+
+    List接口：
+        boolean add(int index, E element);                  //在指定位置添加元素
+        boolean remove(int index);                          //移除指定位置的元素
+        E get(int index);                                   //获取指定位置的元素
+        E set(int index, E element);                        //修改指定位置的元素
+        List<E> subList(int fromIndex, int toIndex);        //返回指定范围内的子列表
+        ListIterator<E> listIterator();                     //返回一个ListIterator对象，用于遍历列表中的元素
+        ListIterator<E> listIterator(int index);            //返回一个ListIterator对象，用于遍历列表中的元素，从指定位置开始
+        int lastIndexOf(Object o);                          //返回指定元素在列表中最后一次出现的索引
+        List<E> subList(int fromIndex, int toIndex);        //返回指定范围内的子列表
+
+
+        ArrayList类：
+            ArrayList()                                      //创建一个空的ArrayList对象
+            ArrayList(Collection<? extends E> c)             //创建一个包含指定集合元素的ArrayList对象
+            ArrayList(int initialCapacity)                   //创建一个具有指定初始容量的ArrayList对象
+            int size()                                       //返回ArrayList中元素的个数
+            boolean isEmpty()                               //判断ArrayList是否为空
+            boolean contains(Object o)                       //判断ArrayList是否包含指定元素
+            boolean add(E e)                                //向ArrayList中添加元素
+            boolean remove(Object o)                        //从ArrayList中移除指定元素
+            E get(int index)                               //返回指定索引处的元素
+            E set(int index, E element)                    //将指定索引处的元素替换为指定元素
+            void add(int index, E element)                 //在指定位置插入元素
+            E remove(int index)                            //移除指定索引处的元素
+            void clear()                                   //清空ArrayList中的所有元素
+            Object[] toArray()                            //将ArrayList转换为数组
+            <T> T[] toArray(T[] a)                         //将ArrayList转换为指定类型的数组
+            int indexOf(Object o)                          //返回指定元素在ArrayList中第一次出现的索引
+            int lastIndexOf(Object o)                      //返回指定元素在ArrayList中最后一次出现的索引
+            ListIterator<E> listIterator()                //返回一个ListIterator对象，用于遍历ArrayList
+            ListIterator<E> listIterator(int index)       //返回一个ListIterator对象，用于从指定索引处开始遍历ArrayList
+            List<E> subList(int fromIndex, int toIndex)    //返回ArrayList的子列表
+            boolean addAll(Collection<? extends E> c)      //将指定集合中的所有元素添加到ArrayList中
+            boolean addAll(int index, Collection<? extends E> c) //将指定集合中的所有元素添加到ArrayList的指定位置
+            boolean removeAll(Collection<?> c)             //移除ArrayList中指定集合中的所有元素
+
+        LinkedList类：
+            void addFirst(E e)                            //将指定元素添加到LinkedList的头部
+            void addLast(E e)                             //将指定元素添加到LinkedList的尾部
+            E getFirst()                                 //返回LinkedList的第一个元素
+          E getLast()                                  //返回LinkedList的最后一个元素
+            E removeFirst()                             //移除并返回LinkedList的第一个元素
+            E removeLast()                              //移除并返回LinkedList的最后一个元素
+            boolean offerFirst(E e)                      //将指定元素添加到LinkedList的头部
+            boolean offerLast(E e)                      //将指定元素添加到LinkedList的尾部
+            E peekFirst()                               //返回LinkedList的第一个元素，但不移除
+            E peekLast()                                //返回LinkedList的最后一个元素，但不移除
+            E pollFirst()                              //移除并返回LinkedList的第一个元素，如果LinkedList为空，则返回null
+            E pollLast()                               //移除并返回LinkedList的最后一个元素，如果LinkedList为空，则返回null
+            boolean removeFirstOccurrence(Object o)     //从LinkedList中移除第一次出现的指定元素
+            boolean removeLastOccurrence(Object o)      //从LinkedList中移除最后一次出现的指定元素
+            void push(E e)                              //将元素压入LinkedList栈顶
+             E pop()                                    //移除并返回LinkedList栈顶的元素
+            int size()                                 //返回集合中元素的个数
+            boolean isEmpty()                          //判断集合是否为空
+            void clear()                               //清空集合
+            boolean contains(Object o)                  //判断集合中是否包含指定元素
+            boolean remove(Object o)                   //从集合中移除指定元素
+            Object[] toArray()                        //将集合转换为数组
+            <T> T[] toArray(T[] a)                     //将集合转换为数组
+            Iterator<E> iterator()                     //返回集合的迭代器
+            ListIterator<E> listIterator()             //返回集合的迭代器
+            ListIterator<E> listIterator(int index)    //返回集合的迭代器，从指定位置开始
+            E get(int index)                          //返回指定位置的元素
+            E set(int index, E element)               //修改指定位置的元素
+            void add(int index, E element)            //在指定位置添加元素
+
+
+    Set接口：
+        boolean add(E e);                                   //向集合中添加元素
+        boolean remove(Object o);                           //从集合中移除指定元素
+        boolean contains(Object o);                         //判断集合中是否包含指定元素
+        int size();                                         //返回集合中元素的个数
+        Iterator<E> iterator();                             //返回一个迭代器对象，用于遍历集合中的元素
+        boolean isEmpty();                                  //判断集合是否为空
+        void clear();                                       //清空集合中的所有元素
+        boolean containsAll(Collection<?> c);               //判断集合中是否包含指定集合中的所有元素
+        boolean removeAll(Collection<?> c);                 //从集合中移除指定集合中的所有元素
+        boolean retainAll(Collection<?> c);                 //保留集合中与指定集合中相同的元素
+        Object[] toArray();                                 //将集合中的元素转换为数组
+        <T> T[] toArray(T[] a);                             //将集合中的元素转换为指定类型的数组
+
+    Map接口：
+        V put(K key, V value);                             //向集合中添加键值对
+        V remove(Object key);                              //从集合中移除指定键的键值对
+        V get(Object key);                                 //根据键获取对应的值
+        Set<K> keySet();                                   //获取集合中所有键的集合
+        Collection<V> values();                            //获取集合中所有值的集合
+        Set<Map.Entry<K, V>> entrySet();                   //获取集合中所有键值对的集合
+        boolean isEmpty();                                 //判断集合是否为空
+        void clear();                                       //清空集合中的所有元素
+        boolean containsKey(Object key);                   //判断集合中是否包含指定键的键值对
+        boolean containsValue(Object value);               //判断集合中是否包含指定值的键值对
+        int size();                                        //获取集合中键值对的数量
+        boolean equals(Object o);                          //判断集合是否与指定对象相等
+        int hashCode();                                    //返回集合的哈希码值
+        default V getOrDefault(Object key, V defaultValue); //根据键获取对应的值，如果键不存在则返回默认值
+        default void forEach(BiConsumer<? super K, ? super V> action); //遍历集合中的每个键值对，并对每个键值对执行指定的操作
+        default void replaceAll(BiFunction<? super K, ? super V, ? extends V> function); //替换集合中每个键值对的值，使用指定的函数计算新的值
+
+
+
+

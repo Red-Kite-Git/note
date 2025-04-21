@@ -1,0 +1,26 @@
+Thread类     java.lang.Thread
+
+主线程  main()
+子线程创建有两种方法
+  1.继承Thread类，重写run方法
+  2.实现Runnable接口，重写run方法
+
+线程的状态
+创建状态    就绪状态    阻塞状态    运行状态    死亡状态
+
+线程调度
+
+void setPriority(int newPriority)           设置线程优先级
+    线程优先级1-10  默认为5         数值越高被CPU调度的优先级越高        （实际可能并不可靠）
+static void sleep(long millis)              在millis毫秒内让当前正在执行的线程休眠
+void join()                                 强制等待调用者线程先终止
+static void yield()                         暂停当前正在执行的线程对象，让出CPU资源，重新竞争CPU资源
+void interrupt()                            中断线程
+boolean isAlive()                           测试线程是否处于活动状态
+boolean isInterrupted()                     测试线程是否已经中断
+
+
+线程同步
+  同步代码块
+  同步方法
+  死锁

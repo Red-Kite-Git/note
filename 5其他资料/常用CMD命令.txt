@@ -1,0 +1,85 @@
+# 常用CMD命令
+
+## 一、文件和目录操作
+
+### dir：显示指定目录中的文件和子目录列表
+
+```cmd
+示例：在命令提示符中输入 “dir”，会列出当前目录下的所有文件和文件夹信息，包括文件名、扩展名、文件大小、修改日期和时间等。如果要查看某个特定文件夹（如 “C:\Users\Admin\Documents”）下的内容，可以输入 “dir C:\Users\Admin\Documents”。
+```
+
+### cd（Change Directory）：改变当前目录
+
+```
+示例：如果当前目录是 “C:\Users”，想要进入 “C:\Users\Admin\Documents”，可以输入 “cd C:\Users\Admin\Documents”。若想返回上一级目录，输入 “cd..”；返回根目录可以输入 “cd \”。
+```
+
+### md（Make Directory）或 mkdir：创建新的目录
+
+```
+示例：在当前目录下创建一个名为 “NewFolder” 的文件夹，可输入 “md NewFolder” 或 “mkdir NewFolder”。
+```
+
+### rd（Remove Directory）或 rmdir：删除空目录
+
+```
+示例：要删除当前目录下名为 “EmptyFolder” 的空文件夹，输入 “rd EmptyFolder” 或 “rmdir EmptyFolder”。需要注意的是，如果文件夹非空，会提示目录非空，无法删除，这时需要先删除文件夹中的文件。
+```
+
+### copy：复制文件
+
+```
+示例：将 “C:\SourceFile.txt” 复制到 “D:\DestinationFolder” 下，可输入 “copy C:\SourceFile.txt D:\DestinationFolder”。还可以使用通配符，如 “copy C:*.txt D:\DestinationFolder” 会将 C 盘根目录下所有的.txt 文件复制到指定文件夹。
+```
+
+### move：移动文件或目录，也可以用于重命名文件
+
+```
+示例：将 “C:\Temp\File.txt” 移动到 “C:\NewLocation\File.txt”，输入 “move C:\Temp\File.txt C:\NewLocation\File.txt”。如果是重命名，例如将 “OldName.txt” 重命名为 “NewName.txt”，在同一目录下可以输入 “move OldName.txt NewName.txt”。
+```
+
+### del（Delete）：删除文件
+
+```
+示例：删除 “D:\Temp\File.txt”文件
+del D:\Temp*.tmp
+会删除 C:\Temp 目录下所有.tmp 扩展名的文件。
+```
+
+
+
+## 二、系统信息和管理
+
+### systeminfo：显示计算机的详细系统信息，包括操作系统版本、系统制造商、BIOS 版本、处理器信息等。
+
+```
+示例：在命令提示符中输入 “systeminfo”，系统会列出详细的系统配置信息。
+```
+
+### tasklist：显示当前运行的进程列表，包括进程名、进程 ID（PID）、会话名和内存使用情况等
+
+```
+示例：输入 “tasklist”，可以查看所有正在运行的进程信息。如果想查找特定进程，例如 “notepad.exe”，可以结合 “find” 命令，如 “tasklist | find "notepad.exe"”。
+```
+
+### taskkill：用于终止一个或多个任务（进程）
+
+```
+示例：如果要结束 “notepad.exe” 进程，可以先通过 “tasklist” 查到进程的 PID，然后输入 “taskkill /PID <PID 号 >”（例如 “taskkill /PID 1234”），也可以通过进程名来结束进程，如 “taskkill /IM notepad.exe”。
+```
+
+
+
+## 三、网络相关命令
+### ping：主要用于测试网络连接，发送 ICMP（Internet Control Message Protocol）数据包到目标主机，并接收响应，以确定目标主机是否可达以及网络连接的延迟情况
+
+```
+示例：要测试与百度服务器（假设 IP 地址为 220.181.38.148）的连接，可以输入 “ping 220.181.38.148”，会显示发送和接收的数据包数量、丢失率、往返时间等信息。
+```
+
+### ipconfig：显示当前计算机的网络配置信息，如 IP 地址、子网掩码、默认网关等
+
+```
+示例：输入 “ipconfig” 会显示所有网络接口的基本 TCP/IP 配置信息。如果想要获取更详细的信息，包括 DNS 服务器地址等，可以输入 “ipconfig /all”。
+```
+
