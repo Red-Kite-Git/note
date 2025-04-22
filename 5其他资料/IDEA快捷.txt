@@ -1,4 +1,5 @@
-缩写
+## 缩写
+
 psvm/main       --->    public static void main(String [] args){}
 "str".sout      --->    System.out.println("str");
 "str".serr      --->    System.err.println("str");
@@ -7,7 +8,8 @@ ifn             --->    if (i == null) {}
 变量值.var       --->    对应变量类型 变量名 = 变量值
 Object.for       --->    for (Object o : objects) {}
 
-—————————————————————————————————————————通用快捷键——————————————————————————————————————
+## 通用快捷键
+
 alt+ ←/→                	切换当前打开的窗口
 alt+ ↑/↓                 切换到上一个/下一个方法
 ctrl+ ←/→               控制光标切换到上一个/下一个单词
@@ -34,13 +36,15 @@ ctrl+"O"                方法重写
 ctrl+alt+"M"            方法抽取
 ctrl+shift+"O"          （自定义设置，打开...）
 
-—————————————————————————————————————————插件快捷键———————————————————————————————————————————
-Translation
+## 插件快捷键
+
+### Translation
 ctrl+shift+"O"            打开翻译窗口（//已移除，替换为通用：打开...）
 ctrl+shift+"Y"            翻译
 ctrl+shift+"X"            翻译并替换
-——————————————————————————————————————————
-CodeGeeX: Al Coding Assistant
+
+
+### CodeGeeX: Al Coding Assistant
 alt+shift+"V"            生成注释
 alt+shift+"E"            解释代码
 alt+shift+"R"            代码重构
