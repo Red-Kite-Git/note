@@ -88,7 +88,10 @@ SET AUTOCOMMIT = 1;
 只能用于 CHAR 、 VARCHAR、TEXT数据列类型
 适合大型数据集
 
+
+
 ### 3.查看索引
+
 ```mysql
 SHOW  INDEX / KEYS FROM 表名
 ```
@@ -125,7 +128,7 @@ ALTER TABLE 表名   DROP  PRIMARY KEY
 
 
 
-## 三、备份
+## 三、MySQL备份
 
 * 使用SQLyog工具  
 	导出 选中数据库右键-备份/导出-备份数据库

@@ -1,4 +1,4 @@
-# Vue拓展
+# Vue插件拓展
 
 ## 一、路由 vue-router
 
