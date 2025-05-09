@@ -1,5 +1,7 @@
 # note
 
+[Red-Kite-Git/note](https://github.com/Red-Kite-Git/note)
+
 本人从零基础小白一路学习编程的笔记！
 
 **如果觉得不错，请先在这个仓库上点个<span style=color:yellow>star★</span>吧**，这是对我的肯定和鼓励
