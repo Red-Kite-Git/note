@@ -36,7 +36,7 @@ IDEA、MySQL
 >     MySQL 8版本的url：
 >         jdbc:mysql://localhost:3306/ssm?serverTimezone=UTC
 
-### 2.创建项目
+### 2.创建项目（JAVAWeb项目）
 
 加入Jar包
 

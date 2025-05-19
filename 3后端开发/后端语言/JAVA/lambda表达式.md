@@ -1,5 +1,7 @@
 # lambda表达式
 
+https://blog.csdn.net/huangjhai/article/details/107110182?fromshare=blogdetail&sharetype=blogdetail&sharerId=107110182&sharerefer=PC&sharesource=yc5338835&sharefrom=from_link
+
 1.1 相关背景
 Lambda表达式是Java 8引入的一个重要特性，它是函数式编程在Java中的一种体现。在Java之前的版本中，Java主要采用面向对象的编程风格，而Lambda表达式的引入使得Java具备了函数式编程的能力。
 

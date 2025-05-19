@@ -175,6 +175,7 @@ public class MyBatisPlusConfig implements MetaObjectHandler {
 @Mapper
 public interface Mapper extends BaseMapper<SmbmsUser> {
 	//单表增删改查语句不需要
+    // 复杂SQL语句接口
 }
 ```
 
@@ -186,6 +187,7 @@ public interface Mapper extends BaseMapper<SmbmsUser> {
 
 <mapper namespace="cn.kgc.mapper.SmbmsUserMapper">
 	<!-- 单表增删改查语句不需要 -->
+    <!-- 复杂SQL语句 -->
 </mapper>
 ```
 
@@ -194,7 +196,8 @@ public interface Mapper extends BaseMapper<SmbmsUser> {
 Service接口 继承 `IService<T>`类
 ```java
 public interface Service extends IService<T> {
-	//单表增删改查语句不需要
+	// 单表增删改查语句不需要
+    // 复杂SQL语句接口
 }
 ```
 
@@ -204,6 +207,7 @@ ServiceImpl实现类 继承 `ServiceImpl<M extends BaseMapper<T>, T>`类
 @Service("service")
 public class ServiceImpl extends ServiceImpl<M extends BaseMapper<T>, T> implements SmbmsUserService {
 	//单表增删改查语句不需要
+	// 复杂SQL语句接口实现
 }
 ```
 
@@ -213,17 +217,18 @@ public class ServiceImpl extends ServiceImpl<M extends BaseMapper<T>, T> impleme
 
 ```java
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/类路径")
 public class Controller {
 
     @Resource
     private SmbmsUserService smbmsUserService;
 
     /**
+     * 新增
      * PostMapping("/insert")注解 表示进入该方法的请求是POST请求 路径为/insert
      * RequestBody注解 表示传入的对象会变为JSON格式数据
      */
-    @PostMapping("/insert")
+    @PostMapping("/接口路径")
     public boolean insertOne(@RequestBody InsertUserForm form) {
         SmbmsUser smbmsUser = new SmbmsUser();
         BeanUtil.copyProperties(form, smbmsUser);
@@ -231,28 +236,28 @@ public class Controller {
     }
 
     /**
-     * GetMapping("/list")注解 表示进入该方法的请求是GET请求 路径为/list
+     * GetMapping("/list")注解 表示进入该方法的请求是GET请求
      */
-    @GetMapping("/list")
+    @GetMapping("/接口路径")
     public List<SmbmsUser> getList() {
         return smbmsUserService.list();
     }
 
     /**
-     * PostMapping("/login")注解 表示进入该方法的请求是POST请求 路径为/login
+     * PostMapping("/login")注解 表示进入该方法的请求是POST请求
      */
-    @PostMapping("/getOne")
+    @PostMapping("/接口路径")
     public SmbmsUser getOne(@RequestParam("id") Long id) {
         return smbmsUserService.getById(id);
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/接口路径/{id}")
     public boolean deleteOne(@PathVariable("id") Long id) {
         return smbmsUserService.removeById(id);
     }
 
     /**
-     * PutMapping("/update")注解 表示进入该方法的请求是PUT请求 路径为/update
+     * PutMapping("/update")注解 表示进入该方法的请求是PUT请求
      */
     @PutMapping("/update")
     public boolean update(@RequestBody UpdateUserForm form) {
@@ -263,7 +268,7 @@ public class Controller {
     }
 
     /**
-     * PostMapping("/login")注解 表示进入该方法的请求是POST请求 路径为/login
+     * PostMapping("/login")注解 表示进入该方法的请求是POST请求
      */
     @PostMapping("/login")
     @ApiOperation(value = "登录（根据编号与密码查询）")

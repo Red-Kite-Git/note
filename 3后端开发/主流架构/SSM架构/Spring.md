@@ -33,7 +33,7 @@ Spring的源代码设计精妙、结构清晰、匠心独用，处处体现着�
 
 IDEA
 
-### 2.创建项目
+### 2.创建项目（javaWeb项目）
 
 加入Jar包
 
@@ -168,7 +168,7 @@ Spring的属性注入方式
 </beans>
 ```
 
-#### P名称空间的属性注入（Spring2.5）
+#### P命名空间的属性注入（Spring2.5）
 
 + 通过引入p名称空间完成属性注入
   + 普通属性：p:属性名=“值”
@@ -1093,7 +1093,7 @@ public class ProductEnhancer {
 查询商品
 ```
 
-##### 异常抛出增强
+##### 异常增强
 
 在程序出现异常时执行
 
@@ -1416,9 +1416,9 @@ AOP切入点表达式是基于execution的函数完成的
 “..” 表示任意参数
 
 + `public void learningspring.aop.aspectj.xml.demo2.ProductDaoImpl.save(..) `：具体到某个增强的方法
-+ `* *.*.*.*Dao.save(..) `：所有包下的所有以Dao结尾的类中的save方法都会被增强
-+ `* learningspring.aop.aspectj.xml.demo2.ProductDaoImpl+.save(..) `：ProductDaoImpl及其子类的save方法都会被增强
-+ `* learningspring.aop.aspectj.xml..*.*(..)`：xml包及其子包的所有类的方法都会被增强
++ `*.*.*.*Dao.save(..) `：所有包下的所有以Dao结尾的类中的save方法都会被增强
++ `learningspring.aop.aspectj.xml.demo2.ProductDaoImpl+.save(..) `：ProductDaoImpl及其子类的save方法都会被增强
++ `learningspring.aop.aspectj.xml..*.*(..)`：xml包及其子包的所有类的方法都会被增强
 
 #### AspectJ的注解配置案例
 
@@ -1634,34 +1634,6 @@ public class AppTest {
 
 ## 五、Spring事务管理
 
-什么是事务
-
-事务：逻辑上的一组操作，组成这组操作的各个单元，要么全部成功，要么全部失败。
-
-事务的特性
-
-+ 原子性：事务不可分割
-+ 一致性：事务执行前后数据完整性保持一致
-+ 隔离性：一个事务的执行不应该受到其他事务的干扰
-+ 持久性：一旦事务结束，数据就持久化到数据库
-
-不考虑隔离性引发的安全性问题
-
-+ 读问题
-  + 脏读：A事务读到B事务未提交的数据
-  + 不可重复读：B事务在A事务两次读取数据之间，修改了数据，导致A事务两次读取结果不一致
-  + 幻读/虚读：B事务在A事务批量修改数据时，插入了一条新的数据，导致数据库中仍有一条数据未被修改。
-+ 写问题
-  + 丢失更新：
-
-解决读问题
-
-+ 设置事务的隔离级别
-  + `Read uncommitted`：未提交读，任何读问题都解决不了
-  + `Read committed`：已提交读，解决脏读，但是不可重复读和幻读有可能发生
-  + `Repeatable read`：重复读，解决脏读和不可重复读，但是幻读有可能发生
-  + `Serializable`：解决所有读问题，因为禁止并行执行
-
 ### Spring事务管理API
 
 + `PlatformTransactionManager`：平台事务管理器
@@ -1683,8 +1655,6 @@ Spring在进行事务管理的时候，首先**平台事务管理器**根据**�
 Spring事务的传播行为
 
 首先假设一个背景，Service1里的x()方法已经定义了一个事务，Service2里的y()方法也有一个事务，但现在新增一行代码在Service2的y()方法中要先调用Service1里的x()方法然后再执行本身的方法。这时就涉及到**事务的传播行为**。
-
-![](https://blogpictrue-1251547651.cos.ap-chengdu.myqcloud.com/blog/20190321110709.png)
 
 Spring中提供了7种传播行为
 

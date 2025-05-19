@@ -1,6 +1,4 @@
-# Vue Cli
-
-官网地址 https://router.vuejs.org/zh/index.html
+# VueCli脚手架
 
 ## 一、单文件组件
 
@@ -77,7 +75,7 @@ export default {
 * **样式（Style）**：组件的 CSS 样式，可以使用`scoped`属性限制样式作用域。
 
 ```vue
-<style scoped>
+<style [scoped]>
 /* 组件的样式，scoped表示只作用于当前组件 */
 </style>
 ```
@@ -86,10 +84,24 @@ export default {
 
 ## 二、Cli相关命令
 
-### 1.查看vue cli 版本
+### 1.查询vue项目信息
+
+#### 全局安装的 Vue CLI 版本
 
 ```bash
 vue --version
+```
+
+#### 查看项目所有依赖及版本
+
+```bash
+npm list --depth=0
+```
+
+#### 查看可更新的插件版本
+
+```bash
+npm outdated
 ```
 
 ### 2.安装vue cli 脚手架

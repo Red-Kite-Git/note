@@ -2,7 +2,7 @@
 
 ## 一、概念
 
-MyBatis-plus-join 是一个基于 [MybatisPlus]() 的增强工具，它在 MyBatis-plus 的基础上再次进行了扩展和优化
+MyBatis-plus-join 是一个基于 [MybatisPlus]() 的增强工具，它在 MyBatisPlus 的基础上再次进行了扩展和优化
 
 ## 二、创建项目（Maven项目）
 
@@ -46,7 +46,7 @@ Mapper.xml文件	与MybatisPlus无异
 
 ### 6.创建Service接口与ServiceImpl实现类
 
-Service接口	与MybatisPlus无异
+Service接口与实现类 与MybatisPlus无异
 
 ServiceImpl实现类中联表查询时 ▼
 
@@ -60,7 +60,7 @@ public class ServiceImpl extends ServiceImpl<M extends BaseMapper<T>, T> impleme
                 JoinWrappers.lambda(SmbmsBill.class)
                         //关联供应商
                         .selectAssociation(SmbmsProvider.class, SmbmsBill::getSmbmsProvider)
-                        //条件
+                        //结果集字段
                         .selectAll(SmbmsBill.class)
                         .selectAll(SmbmsProvider.class)
                         //联表方式和ON条件

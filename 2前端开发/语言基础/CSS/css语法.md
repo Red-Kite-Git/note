@@ -4,14 +4,14 @@
 
 ### 1.行内样式表
 
-在span标签中使用style属性定义的样式
+在标签上使用style属性定义的样式（span标签为例）
 
 ```html
 <span style="...;...;...">
 ```
 ### 2.内部样式
 
-写在head标签内 style标签中定义的样式
+一般写在head标签内 style标签中定义的样式
 
 ```html
 <style>
