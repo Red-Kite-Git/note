@@ -126,9 +126,11 @@ createApp(App).use(router).mount("#app");
 
 #### <2>编程式路由
 
-通过JS代码控制路由
+通过JS代码控制路由（Vue3）
 
 ```js
+import { useRouter } from "vue-router";
+const $router = useRouter();
 $router.push("/路径")
 ```
 
@@ -183,7 +185,7 @@ let 接收变量 = $route.path.参数名
 
 #### <3>通过名字名称跳转传递参数
 
-在路由配置中确保 定义了路由名称`name`
+在路由配置中确保 定义了路由名称`name:路由名`
 
 ```js
 const routes = [{
