@@ -124,6 +124,51 @@ package.json ▼
 ......
 ```
 
+### 4.创建config配置文件
+
+src\config\config.js
+
+```js
+// 获取当前环境
+// vite创建的Vue项目中需要使用import.meta.env来访问环境变量
+const env = import.meta.env.MODE || "dev";
+
+// 环境配置
+const EnvConfig = {
+  // 配置开发环境
+  dev: {
+    // 开发环境的后端接口
+    baseApi: "/api",
+    // 开发环境的mock地址
+    mockApi: "http://......",
+  },
+  // 配置生产环境
+  prod: {
+    // 生产环境的后端接口
+    baseApi: "/api",
+    // 生产环境的mock地址
+    mockApi: "http://......",
+  },
+  // 配置测试环境
+  test: {
+    // 测试环境的后端接口
+    baseApi: "/api",
+    // 测试环境的mock地址
+    mockApi: "http://......",
+  },
+};
+
+export default {
+  // 导出当前环境配置（...是ES6中的扩展运算符）
+  ...EnvConfig[env],
+  env,
+  // 是否启用mock接口
+  mock: false,
+  // 命名空间（项目名称）
+  namespace: "manager",
+};
+```
+
 
 
 ## 三、插件等文件配置
@@ -166,18 +211,12 @@ App.vue ▼
 main.js ▼
 
 ```js
-import { createApp } from "vue";
-import App from "./App.vue";
-
+......
 // 导入路由
 import router from "./router/router.js";
-
-const app = createApp(App);
-
 //使用路由
 app.use(router);
-
-app.mount("#app");
+......
 ```
 
 ### 2.ElementPlus插件
@@ -185,21 +224,13 @@ app.mount("#app");
 main.js ▼
 
 ```js 
-import { createApp } from "vue";
-import App from "./App.vue";
-
-import router from "./router/router.js";
+......
 // 导入ElementPlus插件和样式
 import ElementPlus from "element-plus";
 import "element-plus/dist/index.css";
-
-const app = createApp(App);
-
 //使用ElementPlus插件
 app.use(ElementPlus);
-app.use(router);
-
-app.mount("#app");
+......
 ```
 
 ### 3.后端接口统一管理
@@ -215,23 +246,123 @@ export default {
 main.js ▼
 
 ```js 
-import { createApp } from "vue";
-import App from "./App.vue";
-
-import router from "./router/router.js";
-import ElementPlus from "element-plus";
-import "element-plus/dist/index.css";
+......
 // 导入自定义的后端接口集中管理文件
 import api from "./api/api.js";
-
-const app = createApp(App);
-
 //将api挂载到全局属性上，以便在Vue组件中使用
-app.config.globalProperties.$api = api;
-app.use(ElementPlus);
-app.use(router);
+app.provide("$api", api);
+......
+```
 
-app.mount("#app");
+### 4.二次封装axios
+
+src\utils\request.js ▼
+
+```js
+import axios from "axios";
+import config from "./../config/config.js";
+import { ElMessage } from "element-plus";
+import router from "./../router/router.js";
+
+const service = axios.create({
+  // 设置接口的基础地址
+  baseURL: config.baseApi,
+  // 请求超时时间，单位ms
+  timeout: 3000,
+});
+
+// 请求拦截器，判断请求头中是否有token 如果没有便使用Bearertoken
+service.interceptors.request.use((req) => {
+  // 获取请求头
+  const headers = req.headers;
+  // 判断请求头中是否有token
+  if (!headers.Authorization) {
+    // 如果没有token，设置token
+    headers.Authorization = "Bearer token";
+  }
+  // 返回请求头（放行）
+  return req;
+});
+
+// 响应拦截器，根据不同的状态码 进行不同的处理
+service.interceptors.response.use((res) => {
+  // 根据后端封装的对象信息，解构获取后端的封装信息（此项目中后端封装统一数据格式为：{code:'',data:{}, msg:""}）
+  const { code, data, msg } = res.data;
+  if (code === 200) {
+    return data;
+  } else if (code === 400) {
+    // ElMessage是element-plus中的消息提示组件，功能类似alert
+    ElMessage.error(msg || "服务器内部异常");
+    setTimeout(() => {
+      router.push("/login");
+    }, 2000);
+    // Promise是ES6中新增的一个对象，用来处理异步操作
+    return Promise.reject(msg || "服务器内部异常");
+  } else {
+    ElMessage.error(msg || "服务器异常");
+    return Promise.reject(msg || "服务器异常");
+  }
+});
+
+//封装axios发送请求的方法
+function request(options) {
+  // 不指定请求方式时 默认为get
+  options.method = options.method || "get";
+
+  if (options.method.toLowerCase === "get") {
+    //前端发送请求时,无论是get请求还是post请求统一都使用data进行参数传递
+    //如果是get请求,将data中的参数封装到params中
+    options.params = options.data;
+  }
+  //判断当前项目的环境,如果不是生产环境
+  if (config.env != "prod") {
+    //判断是否开启了mock,如果开启mock,就是mockApi的地址。如果没有开启mock,就是baseApi的地址。
+    service.defaults.baseURL = config.mock ? config.mockApi : config.baseApi;
+  } else {
+    //如果是生产环境,直接使用baseApi的地址
+    service.defaults.baseURL = config.baseApi;
+  }
+  return service(options);
+}
+
+export default request;
+```
+
+main.js ▼
+
+```js
+......
+// 导入二次封装的request.js
+import request from './utils/request.js'
+//将request挂载到全局属性上
+app.provide("$request", request);
+ ......
+```
+
+> 封装axios发送请求的方法后 发送请求的格式
+>
+> ```js
+> this.$request({
+>     method: "请求类型",
+>     url: "请求路径",
+>     data: { 参数名:"值" },
+> }).then((res) => {
+> 	console.log(res);
+> });
+> ```
+
+### 5.二次封装localStorage
+
+src\utils\storage.js ▼
+
+```
+
+```
+
+main.js ▼
+
+```
+
 ```
 
 
@@ -396,19 +527,3 @@ const routes = [
 ];
 ......
 ```
-
-修改main.js文件在项目中引用ElmentPlus插件 ...... import ElementPlus from 'element-plus' import 'element-plus/dist/index.css' //创建app实例 const app=createApp(Ap //使用ElementPlus app.use(ElementPlus) //挂载到id为app的div中 app.mount('#app') 在views文件夹下创建Login.vue文件  
-
- 
-
-
-
-六 根据项目开发模式不同,使用不同的服务器端 接口 修改config目录下的index.js添加项目的配置 const env=import.meta.env.MODE || 'dev' const EnvConfig={ dev:{ //baseApi: 项目后端接口地址，根据环境配置不同，指向不同的后 端服务。 baseApi:'/api', mockApi:'https://www.fastmock.site/mock/c1c302e8baed9894c48c17e4738c092e/api' }, test:{ baseApi:'/api', mockApi:'https://www.fastmock.site/mock/c1c302e8baed9894c48c17e4738c092e/api' }, prod:{ baseApi:'/api', mockApi:'' } } //导出相关的配置信息 export default{ env, mock:false, namespace:'manager',  ...EnvConfig[env] } 
-
-
-
-七 对axios和localStorage进行二次封装 在utils文件夹中
-
- 1 添加request.js文件,对axios二次封装 import axios from 'axios' import config from './../config' import { ElMessage } from 'element-plus' import router from '../router/router.js' const service=axios.create({ baseURL: config.baseApi, timeout: 8000 }) // 请求拦截器,判断请求投中是否有token,如果没有token使用Bearer token。 service.interceptors.request.use((req)=>{ const headers=req.headers; if(!headers.Authorization){ headers.Authorization='Bearer token' } return  req; }) // 设置响应拦截器根据不同的状态码 进行不同的处理 service.interceptors.response.use((res)=>{ //res.data 后端返回的result对象对应的json格式的数据 {code:'',data: {}, msg:""} const {code,data,msg} = res.data; if(code===200){ return data; }else if(code === 40001){ ElMessage.error(msg||'登录超时，请重新登录'); setTimeout(()=>{ router.push("/login"); },1000); return Promise.reject(msg||'登录超时，请重新登录'); }else{ ElMessage.error(msg||'服务器异常'); return Promise.reject(msg||'服务器异常'); } }) //封装axios发送请求方法 function request(options){ options.method=options.method || 'get' //前端发送请求时,无论是get请求还是post请求统一都使用data进行参 数传递 if(options.method.toLowerCase==='get'){ //如果是get请求,将data中的参数封装到params中 options.params=options.data; } //判断当前项目的环境,如果不是生产环境 if(config.env !='prod'){ //判断是否开启了mock,如果开启mock,就是mockApi的地址。如果 没有开启mock,就是baseApi的地址。 service.defaults.baseURL=config.mock? config.mockApi:config.baseApi; }else{ //如果是生产环境,直接使用baseApi的地址 service.defaults.baseURL=config.baseApi; } return service(options); } export default request; 修改main.js文件添加以下内容 ...... import request from './utils/request' //将request挂载到全局属性上，以便在Vue组件中使用。 app.config.globalProperties.$request=request; ...... 上面的函数定义好以后我们就可以调用后端接口,类似于 下面的一段代码 this.$request({ method:'get', url: "/login", data: { name:'jack' } }).then(res=>{ console.log(res); }) 实际是有些人习惯于类似像下面一样调用后端接口 this.$request.get("/login",{name:"jack"}).then(()=>{ console.log(res); }) 所以我们需要扩展request.js中的请求处理,在文 件中添加以下内容 ...... //遍历数组中的每个元素 ['get','post','put','delete','patch'].forEach((item)=>{ //将以上数组的每个元素定义为request函数的的静态属性,属性的值 是一个函数 //所以经过以下代码的处理 request函数中拥有了get 属性 post属性 put属性 delete属性 patch属性  属性的值是一个函数 //在函数中直接调用上面封装好的request函数 request[item]=(url,data,options)=>{ return request({ url, data, method:item, ...options })         } }); ...... export default request; 经过上面的处理我们就可以使用类似以下方式发送请求 this.$request.get("/login",{name:"jack"}).then(res=>{}) 
-
-2 对localStorage进行二次封装 让localStorage支持按照不同的项目名,分开存储数据。 并且可以将对象信息转为JSON格式字符串存储 添加storage.js文件文件: import config from './../config' export default{ getStorage(){ return JSON.parse(window.localStorage.getItem(config.namespace) || "{}"); }, setItem(key,val){ let storage=this.getStorage() storage[key]=val window.localStorage.setItem(config.namespace,JSON.stringify(storage)) }, getItem(key){ return this.getStorage()[key] }, clearItem(key){ let storage=this.getStorage() delete storage[key] window.localStorage.setItem(config.namespace,JSON.stringify(storage)) }, clearAll(){ window.localStorage.clear() } } 修改main.js文件,导入storage ...... import storage from './utils/storage' app.config.globalProperties.$storage=storage ......

@@ -96,6 +96,24 @@ const 路由名 = createRouter({
 export default 路由名;
 ```
 
+> 两种路由方式：
+>
+> ```js
+> import { createRouter, createWebHistory } from "vue-router";
+> const 路由名 = createRouter({
+> 	history: createWebHistory(),
+> });
+> ```
+>
+> ```js
+> import { createRouter, createWebHashHistory } from "vue-router";
+> const 路由名 = createRouter({
+> 	history: createWebHashHistory(),
+> });
+> ```
+>
+> 
+
 #### <4>配置	src/main.js
 
 ```js

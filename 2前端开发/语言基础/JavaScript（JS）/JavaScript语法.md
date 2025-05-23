@@ -1,4 +1,5 @@
-# JavaScript JS    
+# JavaScript语法
+
 ## 一、用法
 
 与CSS相似，有内部JS、外部JS、直接在HTML标签中
@@ -24,8 +25,25 @@
 <button onclick="javascript:alert('提交成功！')">提交按钮</button>
 ```
 
-
 ## 二、ECMAScript(语法标准)
+
+JavaScript 的版本由 **ECMAScript（简称 ES）** 标准定义
+
+| **ES5**        | 2009 年 | `Object.defineProperty`, `Array.prototype.forEach`, 严格模式 (`'use strict'`) |      |                           |
+| -------------- | ------- | ------------------------------------------------------------ | ---- | ------------------------- |
+| **ES6/ES2015** | 2015 年 | 箭头函数 (`=>`), 模板字符串，解构赋值，`let`/`const`, 类 (`class`), Promise, 模块 (`import`/`export`) |      |                           |
+| ES2016         | 2016 年 | `async/await`（基于 Promise）, `Array.prototype.includes`, 指数运算符 (`**`) |      |                           |
+| ES2017         | 2017 年 | `Object.values()`, `Object.entries()`, 字符串填充 (`padStart`/`padEnd`) |      |                           |
+| ES2018         | 2018 年 | 异步迭代 (`for await...of`), 展开语法 (`...`) 支持对象       |      |                           |
+| ES2019         | 2019 年 | `Array.prototype.flat()`, `String.prototype.trimStart()`/`trimEnd()` |      |                           |
+| ES2020         | 2020 年 | `nullish` 合并运算符 (`??`), 可选链 (`?.`), `BigInt`, `Promise.allSettled` |      |                           |
+| ES2021         | 2021 年 | 逻辑赋值运算符 (`&&=`, `                                     |      | =`, `??=`), `Promise.any` |
+| **ES2022**     | 2022 年 | 类私有属性 (`#`), 顶层 `await`, `Object.hasOwn()`            |      |                           |
+| **ES2023**     | 2023 年 | 数组和字符串的新方法 (`toReversed`, `toSorted`, `toSpliced` 等) |      |                           |
+| **ES2024**     | 2024 年 | 装饰器 (`@decorator`), 数组分组 (`Array.prototype.group`), 更多... |      |                           |
+
+
+
 JavaScript是大小写字母区分严格的语言，语法与JAVA语言相似
 
 ### 1.变量
