@@ -69,6 +69,7 @@ vite.config.js ▼
 import { defineConfig } from "vite";
 //Vue 官方的 Vite 插件，用于支持 Vue 单文件组件（.vue 文件）
 import vue from "@vitejs/plugin-vue";
+
 export default defineConfig({
   //配置开发服务器
   server: {
@@ -94,6 +95,8 @@ export default defineConfig({
 
 ### 2.修改main.js文件【可选】
 
+删除文件中注解掉的默认导入的样式文件 `imort './style.css'`，否则导致显示页面有样式问题
+
 src/main.js ▼
 
 ```js
@@ -101,16 +104,13 @@ import { createApp } from "vue";
 //import './style.css'
 import App from "./App.vue";
 
-//vite中需要使用import.meta.env来访问环境变量
-console.log("运行模式:",import.meta.env.MODE)
-
 const app = createApp(App);
 app.mount("#app");
 ```
 
-> 注意删除文件中注解的默认导入的样式文件 `imort './style.css'`，否则导致显示页面有样式问题
-
 ### 3.指定项目的开发模式
+
+指定为开发环境 `--mode dev`
 
 package.json ▼
 
@@ -164,7 +164,7 @@ export default {
   env,
   // 是否启用mock接口
   mock: false,
-  // 命名空间（项目名称）
+  // 命名空间（项目名称）给localStorage使用
   namespace: "manager",
 };
 ```
@@ -184,7 +184,7 @@ import { createRouter, createWebHashHistory } from "vue-router";
 // import { createRouter, createWebHistory } from "vue-router";
 
 const routes = [
-    //根据组件编写路由
+	//根据组件编写路由
 ];
 
 const router = createRouter({
@@ -230,6 +230,13 @@ import ElementPlus from "element-plus";
 import "element-plus/dist/index.css";
 //使用ElementPlus插件
 app.use(ElementPlus);
+
+// 导入ElementPlus图标
+import * as ElementPlusIconsVue from "@element-plus/icons-vue";
+for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+  // 注册图标组件
+  app.component(key, component);
+}
 ......
 ```
 
@@ -250,14 +257,13 @@ main.js ▼
 // 导入自定义的后端接口集中管理文件
 import api from "./api/api.js";
 //将api挂载到全局属性上，以便在Vue组件中使用
-app.provide("$api", api);
+app.provide("api", api);
 ......
 ```
 
 ### 4.二次封装axios
 
 src\utils\request.js ▼
-
 ```js
 import axios from "axios";
 import config from "./../config/config.js";
@@ -271,7 +277,7 @@ const service = axios.create({
   timeout: 3000,
 });
 
-// 请求拦截器，判断请求头中是否有token 如果没有便使用Bearertoken
+// 请求拦截器,判断请求头中是否有token,如果没有token使用Bearertoken。
 service.interceptors.request.use((req) => {
   // 获取请求头
   const headers = req.headers;
@@ -284,27 +290,28 @@ service.interceptors.request.use((req) => {
   return req;
 });
 
-// 响应拦截器，根据不同的状态码 进行不同的处理
+// 设置响应拦截器根据不同的状态码 进行不同的处理
 service.interceptors.response.use((res) => {
-  // 根据后端封装的对象信息，解构获取后端的封装信息（此项目中后端封装统一数据格式为：{code:'',data:{}, msg:""}）
-  const { code, data, msg } = res.data;
+  // 根据后端封装的对象信息，解构获取后端的封装信息（此项目中后端封装统一数据格式为：{code:'',data:{}, message:""}）
+  const { code, data, message } = res.data;
+  // 根据后端返回不同的状态码做出不同的处理
   if (code === 200) {
     return data;
   } else if (code === 400) {
     // ElMessage是element-plus中的消息提示组件，功能类似alert
-    ElMessage.error(msg || "服务器内部异常");
+    ElMessage.error(message || "服务器内部异常");
     setTimeout(() => {
       router.push("/login");
     }, 2000);
     // Promise是ES6中新增的一个对象，用来处理异步操作
-    return Promise.reject(msg || "服务器内部异常");
+    return Promise.reject(message || "服务器内部异常");
   } else {
-    ElMessage.error(msg || "服务器异常");
-    return Promise.reject(msg || "服务器异常");
+    ElMessage.error(message || "服务器异常：无异常信息");
+    return Promise.reject(message || "服务器异常：无异常信息");
   }
 });
 
-//封装axios发送请求的方法
+//封装axios发送请求的第一种方法
 function request(options) {
   // 不指定请求方式时 默认为get
   options.method = options.method || "get";
@@ -325,44 +332,105 @@ function request(options) {
   return service(options);
 }
 
+//封装axios发送请求的第二种方法
+["get", "post", "put", "delete", "patch"].forEach((item) => {
+  // 函数[] 括号内可以放变量，变量名就是函数名
+  request[item] = (url, data, options) => {
+    // 传入的属性名与使用的属性名一致，可以将url:url写为url
+    return request({
+      url,
+      method: item,
+      data,
+      ...options,
+    });
+  };
+});
+
 export default request;
+```
+
+main.js ▼
+```js
+......
+// 导入二次封装的request.js
+import request from './utils/request.js'
+//将request挂载到全局属性上
+app.provide("request", request);
+ ......
+```
+
+> 封装的axios发送请求的第一种方法
+> ```js
+> $request({
+>  method: "请求类型",
+>  url: "请求路径",
+>  data: { 参数名:"值" },
+> }).then((res) => {
+> 	// 对响应数据的操作
+> }).catch(err=>{});
+> ```
+> 封装的axios发送请求的第二种方法
+>
+> ```js
+> $request.请求方式("url",data)
+> .then(res=>{
+>     // 对响应数据的操作
+> }).catch(err=>{});
+> ```
+>
+> 
+
+### 5.二次封装localStorage
+
+localStorage中存储的是一个对象Object，二次封装后可以转为JSON数据
+key：命名空间（项目名称）
+data(存储数据JSON): {user: {name: "张三", age: 18}, token: "xxx" }}
+
+src\utils\storage.js ▼
+```js
+import config from "./../config/config.js";
+
+export default {
+  getStorage() {
+    // 根据项目名获取项目的命名空间数据（对象Object） 转为JSON格式后返回  一开始没有数据返回空JSON"{}"
+    return JSON.parse(window.localStorage.getItem(config.namespace) || "{}");
+  },
+  setItem(key, value) {
+    // 获取命名空间数据
+    let storage = this.getStorage();
+    // 将新的数据添加到原本的命名空间数据（对象Object）中（添加属性并赋值）
+    storage[key] = value;
+    // 将更新后的命名空间数据存储到localStorage中
+    window.localStorage.setItem(config.namespace, JSON.stringify(storage));
+  },
+  getItem(key) {
+    // 从JSON数据中根据key获取到对应的value
+    return this.getStorage()[key];
+  },
+  clearItem(key) {
+    // 获取命名空间数据
+    let storage = this.getStorage();
+    // 根据key删除命名空间数据中的对应数据
+    delete storage[key];
+    // 将更新后的命名空间数据存储到localStorage中
+    window.localStorage.setItem(config.namespace, JSON.stringify(storage));
+  },
+  clearAll() {
+    // 清空localStorage中的所有数据
+    window.localStorage.clear();
+  },
+};
 ```
 
 main.js ▼
 
 ```js
 ......
-// 导入二次封装的request.js
-import request from './utils/request.js'
-//将request挂载到全局属性上
-app.provide("$request", request);
+// 导入二次封装的storage.js
+import storage from "./utils/storage";
+// 将storage挂载到全局属性上
+app.provide("storage", storage);
  ......
-```
-
-> 封装axios发送请求的方法后 发送请求的格式
->
-> ```js
-> this.$request({
->     method: "请求类型",
->     url: "请求路径",
->     data: { 参数名:"值" },
-> }).then((res) => {
-> 	console.log(res);
-> });
-> ```
-
-### 5.二次封装localStorage
-
-src\utils\storage.js ▼
-
-```
-
-```
-
-main.js ▼
-
-```
-
 ```
 
 
@@ -435,6 +503,8 @@ src\views\Home.vue ▼
 
 ### 2.创建主页面中的欢迎页
 
+src\views\Welcome.vue ▼
+
 ```vue
 <template>
   <div>
@@ -445,27 +515,98 @@ src\views\Home.vue ▼
 
 ### 3.创建登录页面组件
 
+src\api\api.js ▼
+
+```js
+import $request from "./../utils/request.js";
+
+export default {
+  // 添加一个登录的函数
+  login(params) {
+    return $request.post("/users/login", params);
+  },
+};
+```
+
+src\views\Login.vue ▼
+
 ```vue
 <template>
   <div class="login-wrapper">
     <div class="modal">
       <h2 class="title">通用后台管理系统</h2>
-      <el-form>
-        <el-form-item label="用户名">
-          <el-input placeholder="请输入用户名" />
+      <!-- :rules 绑定rules属性 prop定义规则名 -->
+      <el-form
+        :model="users"
+        :rules="rules"
+        ref="loginForm"
+        @keyup.enter="handleLogin"
+      >
+        <el-form-item label="用户名" prop="userName">
+          <el-input
+            placeholder="请输入用户名"
+            type="text"
+            v-model="users.userName"
+            prefix-icon="user"
+          />
         </el-form-item>
-        <el-form-item label="密&nbsp;&nbsp;&nbsp;&nbsp;码">
-          <el-input placeholder="请输入密码" />
+        <el-form-item label="密&nbsp;&nbsp;&nbsp;&nbsp;码" prop="userPwd">
+          <el-input
+            placeholder="请输入密码"
+            type="password"
+            v-model="users.userPwd"
+            prefix-icon="lock"
+          />
         </el-form-item>
         <el-form-item>
-          <el-button class="btn-login" type="primary">登录</el-button>
+          <el-button class="btn-login" type="primary" @click="handleLogin">
+            登录
+          </el-button>
         </el-form-item>
       </el-form>
     </div>
   </div>
 </template>
 
-<script></script>
+<script setup>
+import { inject, ref } from "vue";
+import { useRouter } from "vue-router";
+
+const $router = useRouter();
+const $storage = inject("storage");
+const $api = inject("api");
+
+let users = ref({
+  userName: "",
+  userPwd: "",
+});
+// 定义规则数组
+const rules = ref({
+  // required：是否必填项   message: 提示信息   trigger: 触发事件
+  userName: [
+    { required: true, message: "用户名为必填项", trigger: "blur" },
+    { min: 3, max: 5, message: "用户名长度在3-5个字符之间", trigger: "blur" },
+  ],
+  userPwd: [
+    { required: true, message: "密码为必填项", trigger: "blur" },
+    { min: 3, max: 10, message: "密码长度在3-10个字符之间", trigger: "blur" },
+  ],
+});
+
+// 获取表单属性ref="loginForm"的DOM对象
+const loginForm = ref();
+const handleLogin = () => {
+  loginForm.value.validate((valid) => {
+    if (valid) {
+      // 调用集中管理请求api中的登录接口
+      $api.login(users.value).then((res) => {
+        $storage.setItem("loginUser", res);
+        $router.push("/home");
+      });
+    }
+  });
+};
+</script>
 
 <style scoped lang="scss">
 .login-wrapper {
@@ -495,7 +636,11 @@ src\views\Home.vue ▼
 </style>
 ```
 
-### 配置路由src/router/index.js ▼
+
+
+### 配置登录、主页-欢迎页的路由
+
+src/router/index.js ▼
 
 ```js
 ......
@@ -504,6 +649,7 @@ const routes = [
     path: "/home",
     name: "home",
     component: () => import("./../views/Home.vue"),
+    // 进入home默认展示welcome页面（重定向）
     redirect: "/home/welcome",
     children: [
       {
@@ -525,5 +671,20 @@ const routes = [
     },
   },
 ];
+
+// 使用路由守卫 拦截所有路由请求
+router.beforeEach((to, from, next) => {
+  // 判断是否配置了标题的元数据mata
+  if (to.meta.title) {
+    // 动态设置浏览器标题
+    document.title = to.meta.title;
+  } else {
+    // 默认标题
+    document.title = "后台管理系统";
+  }
+  next();
+});
 ......
 ```
+
+### 4.
