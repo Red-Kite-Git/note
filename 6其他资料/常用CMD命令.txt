@@ -83,3 +83,9 @@ del D:\Temp*.tmp
 示例：输入 “ipconfig” 会显示所有网络接口的基本 TCP/IP 配置信息。如果想要获取更详细的信息，包括 DNS 服务器地址等，可以输入 “ipconfig /all”。
 ```
 
+### 关闭/开启 Windows Defender 防火墙（所有配置文件）
+
+```bash
+netsh advfirewall set allprofiles state off
+netsh advfirewall set allprofiles state on
+```
