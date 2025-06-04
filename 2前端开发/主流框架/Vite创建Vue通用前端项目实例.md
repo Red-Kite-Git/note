@@ -81,6 +81,33 @@ npm run preview
 >   `npm run preview`	使用`npm run build`命令构建好项目以后就可以使用此命令浏览项目
 >
 
+## 前端架构设计
+
+```text
+project-root/
+├── api/                    # API接口管理
+│   └── index.js            # API入口文件
+├── assets/                 # 静态资源
+│   ├── images/             # 图片资源
+│   ├── styles/             # 样式资源
+│   └── fonts/              # 字体资源
+├── components/             # 组件
+│   ├── common/             # 通用组件
+│   └── layout/             # 布局组件
+├── config/                 # 配置文件
+│   └── config.js           # 项目配置
+├── router/                 # 路由
+│   └── router.js            # 路由配置
+├── store/                  # Vuex状态管理
+│   └── store.js            # Vuex配置
+├── utils/                  # 工具函数
+│   ├── request.js          # axios二次封装
+│   └── storage.js          # 本地存储二次封装
+└── views/                  # 视图组件
+    ├── Home.vue            # 首页
+    └── About.vue           # 关于页
+```
+
 
 
 ## 二、项目相关文件配置
