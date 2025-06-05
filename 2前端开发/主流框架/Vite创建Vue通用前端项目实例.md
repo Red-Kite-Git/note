@@ -1255,50 +1255,50 @@ const routes = [
 #### 条件查询部分
 
 ```vue
-<div class="query-form">
-  <el-form :inline="true" ref="queryForm" :model="queryParams">
-    <el-form-item label="用户名：">
-      <el-input placeholder="请输入用户名" v-model="queryParams.userName" />
-    </el-form-item>
-    <el-form-item label="用户状态：" prop="state">
-      <el-select style="width: 100px" v-model="queryParams.state">
-        <el-option label="任意" :value="0"></el-option>
-        <el-option
-          v-for="item in statesList"
-          :key="item.id"
-          :value="item.id"
-          :label="item.name"
-        ></el-option>
-      </el-select>
-    </el-form-item>
-    <el-form-item label="所在部门" prop="deptId">
-      <el-select style="width: 100px" v-model="queryParams.deptId">
-        <el-option label="任意" :value="0"></el-option>
-        <el-option
-          v-for="item in deptsList"
-          :key="item.id"
-          :value="item.id"
-          :label="item.deptName"
-        ></el-option>
-      </el-select>
-    </el-form-item>
-    <el-form-item label="用户角色：" prop="roleId">
-      <el-select style="width: 100px" v-model="queryParams.roleId">
-        <el-option label="任意" :value="0"></el-option>
-        <el-option
-          v-for="item in rolesList"
-          :key="item.id"
-          :value="item.id"
-          :label="item.roleName"
-        ></el-option>
-      </el-select>
-    </el-form-item>
-    <el-form-item>
-      <el-button type="primary" @click="pageUserList()">查询</el-button>
-      <el-button type="info" @click="resetForm()">重置</el-button>
-    </el-form-item>
-  </el-form>
-</div>
+    <div class="query-form">
+      <el-form :inline="true" ref="queryForm" :model="queryParams">
+        <el-form-item label="用户名：" prop="userName">
+          <el-input placeholder="请输入用户名" v-model="queryParams.userName" />
+        </el-form-item>
+        <el-form-item label="用户状态：" prop="status">
+          <el-select style="width: 100px" v-model="queryParams.status">
+            <el-option label="任意" :value="0" />
+            <el-option
+              v-for="item in statusList"
+              :key="item.id"
+              :value="item.id"
+              :label="item.name"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="所在部门" prop="deptId">
+          <el-select style="width: 100px" v-model="queryParams.deptId">
+            <el-option label="任意" :value="0" />
+            <el-option
+              v-for="item in deptsList"
+              :key="item.id"
+              :value="item.id"
+              :label="item.deptName"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="用户角色：" prop="roleId">
+          <el-select style="width: 100px" v-model="queryParams.roleId">
+            <el-option label="任意" :value="0" />
+            <el-option
+              v-for="item in rolesList"
+              :key="item.id"
+              :value="item.id"
+              :label="item.roleName"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="pageUserList()">查询</el-button>
+          <el-button type="info" @click="resetForm()">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
 ```
 
 #### 操作按钮部分
@@ -1313,26 +1313,33 @@ const routes = [
 #### 遍历结果集部分
 
 ```vue
-<div>
-  <el-table :data="userList">
-    <el-table-column type="selection" width="55" :selectable="selectable" />
-    <el-table-column
-      v-for="item in columns"
-      :key="item.prop"
-      :prop="item.prop"
-      :label="item.label"
-      :formatter="item.formatter"
-    ></el-table-column>
-    <el-table-column fixed="right" label="操作" min-width="120">
-      <template #default>
-        <el-button type="warning" size="small" @click="handleClick">
-          编辑
-        </el-button>
-        <el-button type="danger" size="small"> 删除 </el-button>
-      </template>
-    </el-table-column>
-  </el-table>
-</div>
+      <div>
+        <el-table :data="userList">
+          <!-- 复选框 -->
+          <el-table-column
+            type="selection"
+            width="55"
+            :selectable="selectable"
+          />
+          <!-- 表头 -->
+          <el-table-column
+            v-for="item in columns"
+            :key="item.prop"
+            :prop="item.prop"
+            :label="item.label"
+            :formatter="item.formatter"
+          />
+          <!-- 表体 -->
+          <el-table-column fixed="right" label="操作" min-width="120">
+            <template #default>
+              <el-button type="warning" size="small" @click="handleClick">
+                编辑
+              </el-button>
+              <el-button type="danger" size="small"> 删除 </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
 ```
 
 #### 分页跳转部分
@@ -1351,76 +1358,64 @@ const routes = [
 #### 新增/编辑用户对话框部分
 
 ```vue
-<div>
-  <el-dialog v-model="showDialog" title="新增/编辑用户" :modal="editForm">
-    <el-form label-width="100px">
-      <el-form-item label="用户名:" prop="userName">
-        <el-input
-          v-model="editForm.userName"
-          placeholder="请输入用户名"
-        ></el-input>
-      </el-form-item>
-      <el-form-item label="用户邮箱:" prop="userEmail">
-        <el-input
-          v-model="editForm.userEmail"
-          placeholder="请输入用户邮箱"
-        ></el-input>
-      </el-form-item>
-      <el-form-item label="用户手机:">
-        <el-input
-          v-model="editForm.mobile"
-          placeholder="请输入用户手机"
-        ></el-input>
-      </el-form-item>
-      <el-form-item label="用户岗位:">
-        <el-input
-          v-model="editForm.job"
-          placeholder="请输入用户岗位"
-        ></el-input>
-      </el-form-item>
-      <el-form-item label="用户状态:">
-        <el-select v-model="editForm.state">
-          <el-option :value="0" label="请选择状态"></el-option>
-          <el-option :value="1" label="在职"></el-option>
-          <el-option :value="2" label="离职"></el-option>
-          <el-option :value="3" label="试用期"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="用户角色:">
-        <el-select v-model="editForm.roleId">
-          <el-option :value="0" label="请选择角色"></el-option>
-          <el-option
-            v-for="temp in rolesList"
-            :key="temp.id"
-            :value="temp.id"
-            :label="temp.roleName"
-          ></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="用户所属部门:">
-        <el-select v-model="editForm.deptId">
-          <el-option :value="0" label="请选择部门"></el-option>
-          <el-option
-            v-for="temp in deptsList"
-            :key="temp.id"
-            :value="temp.id"
-            :label="temp.deptName"
-          ></el-option>
-        </el-select>
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <div class="dialog-footer">
-        <el-button type="primary" @click="dialogVisible = false">
-          提交
-        </el-button>
-        <el-button type="warning" @click="dialogVisible = false">
-          取消
-        </el-button>
-      </div>
-    </template>
-  </el-dialog>
-</div>
+    <div>
+      <el-dialog v-model="showDialog" title="新增/编辑用户" :modal="editForm">
+        <el-form label-width="100px">
+          <el-form-item label="用户名:" prop="userName">
+            <el-input v-model="editForm.userName" placeholder="请输入用户名" />
+          </el-form-item>
+          <el-form-item label="用户邮箱:" prop="userEmail">
+            <el-input v-model="editForm.userEmail" placeholder="请输入邮箱" />
+          </el-form-item>
+          <el-form-item label="用户手机:">
+            <el-input v-model="editForm.mobile" placeholder="请输入手机号" />
+          </el-form-item>
+          <el-form-item label="用户岗位:">
+            <el-input v-model="editForm.job" placeholder="请输入岗位" />
+          </el-form-item>
+          <el-form-item label="用户状态:">
+            <el-select v-model="editForm.state">
+              <el-option :value="0" label="请选择状态" />
+              <el-option :value="1" label="在职" />
+              <el-option :value="2" label="离职" />
+              <el-option :value="3" label="试用期" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="用户角色:">
+            <el-select v-model="editForm.roleId">
+              <el-option :value="0" label="请选择角色" />
+              <el-option
+                v-for="temp in rolesList"
+                :key="temp.id"
+                :value="temp.id"
+                :label="temp.roleName"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="用户所属部门:">
+            <el-select v-model="editForm.deptId">
+              <el-option :value="0" label="请选择部门" />
+              <el-option
+                v-for="temp in deptsList"
+                :key="temp.id"
+                :value="temp.id"
+                :label="temp.deptName"
+              />
+            </el-select>
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <div class="dialog-footer">
+            <el-button type="primary" @click="dialogVisible = false">
+              提交
+            </el-button>
+            <el-button type="warning" @click="dialogVisible = false">
+              取消
+            </el-button>
+          </div>
+        </template>
+      </el-dialog>
+    </div>
 ```
 
 #### JS部分
@@ -1453,7 +1448,7 @@ const columns = [
 
 let deptsList = ref([]);
 let rolesList = ref([]);
-let statesList = ref([
+let statusList = ref([
   { name: "在职", id: 1 },
   { name: "离职", id: 2 },
   { name: "试用期", id: 3 },
@@ -1473,7 +1468,7 @@ let userList = ref([]);
 let queryParams = ref({
   // 后端需求的参数
   userName: "",
-  state: 0,
+  status: 0,
   deptId: 0,
   roleId: 0,
   // 其他必填参数
@@ -1511,7 +1506,7 @@ const handleAdd = () => {
   showDialog.value = true;
 };
 
-let editForm = ref({});
+let AddForm = ref({});
 </script>
 ```
 
