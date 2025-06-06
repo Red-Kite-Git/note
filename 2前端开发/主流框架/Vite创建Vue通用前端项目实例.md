@@ -25,7 +25,7 @@ vite --version
 npm init vite@latest 项目名
 ```
 
-> 选择框架framework：Vue		选择语言：JavaScript
+> 本项目使用	Vue + JavaScript
 
 ### 3.配置项目插件/依赖
 
@@ -505,7 +505,6 @@ export default {
   //调用的后端接口函数 集中管理
   // 使用封装的$request向后端发送请求
 };
-
 ```
 
 main.js ▼
@@ -1218,9 +1217,52 @@ const routes = [
 ......
 ```
 
-### 1.用户列表	src\views\User.vue
+### 1.用户管理页面
 
-#### 整体框架
+#### 新增用到的接口
+
+src\api\api.js ▼
+
+```js
+import $request from './../utils/request.js';
+export default {
+  ......
+  //查询部门集合
+  getDepartmentList() {
+    return $request.get('/depts/list');
+  },
+  //查询角色集合
+  getRoleList() {
+    return $request.get('/roles/list');
+  },
+  //分页查询用户信息集合
+  pageUserList(params) {
+    return $request.post('/users/list', params);
+  },
+  // 新增用户
+  saveUser(form) {
+    return $request.post('/users/save', form);
+  },
+  // 删除用户
+  deleteUser(idArray) {
+    return $request.post('/users/delete', idArray);
+  },
+  //查询用户详情
+  getUserDetail(id) {
+    return $request.get('users/detail/' + id);
+  },
+  //更新用户
+  updateUser(form) {
+    return $request.put('/users/update', form);
+  },
+};
+```
+
+#### 用户管理页面
+
+src\views\User.vue ▼
+
+页面整体框架
 
 ```vue
 <template>
@@ -1248,13 +1290,14 @@ const routes = [
 </template>
 
 <script setup></script>
-
-<style scoped></style>
 ```
 
-#### 条件查询部分
+完整代码
 
 ```vue
+<template>
+  <div class="user-mange">
+    <!-- 查询条件框部分 -->
     <div class="query-form">
       <el-form :inline="true" ref="queryForm" :model="queryParams">
         <el-form-item label="用户名：" prop="userName">
@@ -1267,8 +1310,7 @@ const routes = [
               v-for="item in statusList"
               :key="item.id"
               :value="item.id"
-              :label="item.name"
-            />
+              :label="item.name" />
           </el-select>
         </el-form-item>
         <el-form-item label="所在部门" prop="deptId">
@@ -1278,8 +1320,7 @@ const routes = [
               v-for="item in deptsList"
               :key="item.id"
               :value="item.id"
-              :label="item.deptName"
-            />
+              :label="item.deptName" />
           </el-select>
         </el-form-item>
         <el-form-item label="用户角色：" prop="roleId">
@@ -1289,8 +1330,7 @@ const routes = [
               v-for="item in rolesList"
               :key="item.id"
               :value="item.id"
-              :label="item.roleName"
-            />
+              :label="item.roleName" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -1299,159 +1339,147 @@ const routes = [
         </el-form-item>
       </el-form>
     </div>
-```
 
-#### 操作按钮部分
-
-```vue
-<div class="action">
-  <el-button type="primary" @click="handleAdd()">新增</el-button>
-  <el-button type="danger" @click="handleDelete()">批量删除</el-button>
-</div>
-```
-
-#### 遍历结果集部分
-
-```vue
+    <div class="base-table">
+      <!-- 操作按钮 -->
+      <div class="action">
+        <el-button type="primary" @click="handleSave()">新增</el-button>
+        <el-button type="danger" @click="handleDeleteBatch()">批量删除</el-button>
+      </div>
+      <!-- 分页遍历查询结果集  -->
       <div>
-        <el-table :data="userList">
+        <!-- El提供的@selection-change 多选框事件 -->
+        <el-table :data="userList" @selection-change="handleSelectionChange">
           <!-- 复选框 -->
-          <el-table-column
-            type="selection"
-            width="55"
-            :selectable="selectable"
-          />
+          <el-table-column type="selection" width="55" />
           <!-- 表头 -->
           <el-table-column
             v-for="item in columns"
             :key="item.prop"
             :prop="item.prop"
             :label="item.label"
-            :formatter="item.formatter"
-          />
+            :formatter="item.formatter" />
           <!-- 表体 -->
           <el-table-column fixed="right" label="操作" min-width="120">
-            <template #default>
-              <el-button type="warning" size="small" @click="handleClick">
+            <!-- #default="scope"语法糖等价Vue2的slot="default"或未命名插槽 能接收到表格行数据的row、column数据 -->
+            <template #default="scope">
+              <el-button type="warning" size="small" @click="handleEdit(scope.row)">
                 编辑
               </el-button>
-              <el-button type="danger" size="small"> 删除 </el-button>
+              <el-button type="danger" size="small" @click="handleDelete(scope.row.userId)">
+                删除
+              </el-button>
             </template>
           </el-table-column>
         </el-table>
       </div>
-```
+      <!-- El提供的@current-change 点击换页事件 -->
+      <div>
+        <el-pagination
+          layout="prev,pager,next"
+          :page-size="pageParams.pageSize"
+          :total="pageParams.totalCount"
+          @current-change="changePage"></el-pagination>
+      </div>
+    </div>
 
-#### 分页跳转部分
-
-```vue
-<div>
-  <el-pagination
-    layout="prev,pager,next"
-    :page-size="pageParams.pageSize"
-    :total="pageParams.totalCount"
-    @current-change="changePage"
-  ></el-pagination>
-</div>
-```
-
-#### 新增/编辑用户对话框部分
-
-```vue
+    <!-- El对话框（新增/编辑用户） -->
     <div>
-      <el-dialog v-model="showDialog" title="新增/编辑用户" :modal="editForm">
-        <el-form label-width="100px">
+      <el-dialog title="新增/编辑用户" v-model="showDialog">
+        <el-form ref="dialogForm" :model="dialogFormData" :rules="rules">
           <el-form-item label="用户名:" prop="userName">
-            <el-input v-model="editForm.userName" placeholder="请输入用户名" />
+            <el-input
+              v-model="dialogFormData.userName"
+              placeholder="请输入用户名"
+              :disabled="dialogAction == 'edit'" />
           </el-form-item>
           <el-form-item label="用户邮箱:" prop="userEmail">
-            <el-input v-model="editForm.userEmail" placeholder="请输入邮箱" />
+            <el-input
+              v-model="dialogFormData.userEmail"
+              placeholder="请输入邮箱"
+              :disabled="dialogAction == 'edit'" />
           </el-form-item>
-          <el-form-item label="用户手机:">
-            <el-input v-model="editForm.mobile" placeholder="请输入手机号" />
+          <el-form-item label="用户手机:" prop="mobile">
+            <el-input v-model="dialogFormData.mobile" placeholder="请输入手机号" />
           </el-form-item>
-          <el-form-item label="用户岗位:">
-            <el-input v-model="editForm.job" placeholder="请输入岗位" />
+          <el-form-item label="用户岗位:" prop="job">
+            <el-input v-model="dialogFormData.job" placeholder="请输入岗位" />
           </el-form-item>
-          <el-form-item label="用户状态:">
-            <el-select v-model="editForm.state">
+          <el-form-item label="用户状态:" prop="state">
+            <el-select v-model="dialogFormData.state">
               <el-option :value="0" label="请选择状态" />
               <el-option :value="1" label="在职" />
               <el-option :value="2" label="离职" />
               <el-option :value="3" label="试用期" />
             </el-select>
           </el-form-item>
-          <el-form-item label="用户角色:">
-            <el-select v-model="editForm.roleId">
+          <el-form-item label="用户角色:" prop="roleId">
+            <el-select v-model="dialogFormData.roleId">
               <el-option :value="0" label="请选择角色" />
               <el-option
                 v-for="temp in rolesList"
                 :key="temp.id"
                 :value="temp.id"
-                :label="temp.roleName"
-              />
+                :label="temp.roleName" />
             </el-select>
           </el-form-item>
-          <el-form-item label="用户所属部门:">
-            <el-select v-model="editForm.deptId">
+          <el-form-item label="用户所属部门:" prop="deptId">
+            <el-select v-model="dialogFormData.deptId">
               <el-option :value="0" label="请选择部门" />
               <el-option
                 v-for="temp in deptsList"
                 :key="temp.id"
                 :value="temp.id"
-                :label="temp.deptName"
-              />
+                :label="temp.deptName" />
             </el-select>
           </el-form-item>
         </el-form>
         <template #footer>
           <div class="dialog-footer">
-            <el-button type="primary" @click="dialogVisible = false">
-              提交
-            </el-button>
-            <el-button type="warning" @click="dialogVisible = false">
-              取消
-            </el-button>
+            <el-button type="success" @click="handleSubmit()"> 提交 </el-button>
+            <el-button type="info" @click="handleCancel()"> 取消 </el-button>
           </div>
         </template>
       </el-dialog>
     </div>
-```
+  </div>
+</template>
 
-#### JS部分
-
-```vue
 <script setup>
-import { getCurrentInstance, inject, onMounted, ref } from "vue";
-const $api = inject("api");
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { getCurrentInstance, inject, onMounted, ref } from 'vue';
+const $api = inject('api');
+
+// 获得当前组件实例，相当于Vue2中的this
+let { ctx } = getCurrentInstance();
 
 const columns = [
   //定义表格字段名和字段值（字段值为后端结果集的字段）
-  { label: "用户ID", prop: "userId" },
-  { label: "用户名", prop: "userName" },
-  { label: "邮箱", prop: "userEmail" },
-  { label: "手机号", prop: "mobile" },
-  { label: "用户角色", prop: "roleName" },
+  { label: '用户ID', prop: 'userId' },
+  { label: '用户名', prop: 'userName' },
+  { label: '邮箱', prop: 'userEmail' },
+  { label: '手机号', prop: 'mobile' },
+  { label: '用户角色', prop: 'roleName' },
   {
-    label: "用户状态",
-    prop: "state",
+    label: '用户状态',
+    prop: 'state',
     formatter: (row, column, value) => {
       return {
-        1: "在职",
-        2: "离职",
-        3: "试用期",
+        1: '在职',
+        2: '离职',
+        3: '试用期',
       }[value];
     },
   },
-  { label: "最后登录时间", prop: "lastLoginTime" },
+  { label: '最后登录时间', prop: 'lastLoginTime' },
 ];
 
 let deptsList = ref([]);
 let rolesList = ref([]);
 let statusList = ref([
-  { name: "在职", id: 1 },
-  { name: "离职", id: 2 },
-  { name: "试用期", id: 3 },
+  { name: '在职', id: 1 },
+  { name: '离职', id: 2 },
+  { name: '试用期', id: 3 },
 ]);
 onMounted(() => {
   $api.getDepartmentList().then((res) => {
@@ -1463,18 +1491,18 @@ onMounted(() => {
   pageUserList();
 });
 
-//▼ ▼ ▼ ▼ ▼ 查询与分页 ▼ ▼ ▼ ▼ ▼
+//////////////////// 分页查询 ////////////////////
 let userList = ref([]);
 let queryParams = ref({
   // 后端需求的参数
-  userName: "",
+  userName: '',
   status: 0,
   deptId: 0,
   roleId: 0,
   // 其他必填参数
   pageNum: 1,
   pageSize: 6,
-  mobile: "",
+  mobile: '',
 });
 let pageParams = ref({
   totalCount: 0,
@@ -1491,22 +1519,166 @@ const changePage = (pageNum) => {
   queryParams.value.pageNum = pageNum;
   pageUserList();
 };
-// 获得当前组件实例，相当于Vue2中的this
-let { ctx } = getCurrentInstance();
+
 const resetForm = () => {
   //获取当前组件中ref值为queryForm的表单实例
   //调用Vue提供的resetFields方法（清空表单绑定的model中的prop）
   ctx.$refs.queryForm.resetFields();
 };
 
-//▼ ▼ ▼ ▼ ▼ 新增用户 ▼ ▼ ▼ ▼ ▼
+// 新增与编辑公用一个表单，通过dialogAction在表单处禁用另一种
+let dialogAction = ref('');
+
+//////////////////// 新增用户 ////////////////////
 // 新增/编辑用户兑换框是否展示
 let showDialog = ref(false);
-const handleAdd = () => {
+const handleSave = () => {
+  dialogAction.value = 'add';
   showDialog.value = true;
 };
+// 表单信息
+let dialogFormData = ref({
+  state: 0,
+  roleId: 0,
+  deptId: 0,
+});
+// 前端表单校验规则
+const rules = ref({
+  userName: [{ required: true, message: '用户名不能为空', trigger: 'blur' }],
+  userEmail: [
+    { required: true, message: '邮箱不能为空', trigger: 'blur' },
+    { type: 'email', message: '邮箱格式不正确', trigger: ['blur', 'change'] },
+    // 或正则表达式 pattern: /^[0-9a-zA-Z]+@[0-9a-zA-Z]{2,}\.[a-zA-Z]{2,}$/
+  ],
+  mobile: [
+    { required: true, message: '手机号不能为空', trigger: 'blur' },
+    // 正则表达式校验
+    { pattern: /^1\d{10}$/, message: '手机号格式不正确', trigger: ['blur', 'change'] },
+  ],
+  job: [{ required: true, message: '岗位不能为空', trigger: 'blur' }],
+  // 自定义验证规则
+  state: [
+    {
+      validator: (rule, value, callback) => {
+        return value == 0 ? callback(new Error('请选择状态')) : callback();
+      },
+      trigger: 'blur',
+    },
+  ],
+  roleId: [
+    {
+      validator: (rule, value, callback) => {
+        return value == 0 ? callback(new Error('请选择角色')) : callback();
+      },
+    },
+  ],
+  deptId: [
+    {
+      validator: (rule, value, callback) => {
+        return value == 0 ? callback(new Error('请选择部门')) : callback();
+      },
+    },
+  ],
+});
+// 表单提交函数
+const handleSubmit = () => {
+  ctx.$refs.dialogForm.validate((valid) => {
+    if (valid) {
+      if (dialogAction.value == 'add') {
+        $api.saveUser(dialogFormData.value).then((res) => {
+          if (res) {
+            ElMessage.success('操作成功');
+            handleCancel();
+            pageUserList();
+          } else {
+            ElMessage.error('操作失败');
+          }
+        });
+      } else if (dialogAction.value == 'edit') {
+        $api.updateUser(dialogFormData.value).then((res) => {
+          if (res) {
+            ElMessage.success('操作成功');
+            handleCancel();
+            pageUserList();
+          } else {
+            ElMessage.error('操作失败');
+          }
+        });
+      }
+    }
+  });
+};
+// 表单取消函数
+const handleCancel = () => {
+  ctx.$refs.dialogForm.resetFields();
+  showDialog.value = false;
+};
 
-let AddForm = ref({});
+//////////////////// 编辑用户 ////////////////////
+const handleEdit = (row) => {
+  dialogAction.value = 'edit';
+  showDialog.value = true;
+  //ctx.$nextTick() 可以在DOM更新完成后再执行代码，确保获取到的是最新的DOM状态
+  ctx.$nextTick(() => {
+    // 与新增公用一个表单，通过El的#default获取原数据 Object.assign(拷贝对象, 原数据)
+    Object.assign(dialogFormData.value, row);
+  });
+};
+
+//////////////////// 删除用户 ////////////////////
+// 配合批量删除及后端接口
+let deleteParams = ref({
+  userIds: [],
+});
+// 删除单个用户函数
+const handleDelete = (userId) => {
+  ElMessageBox.confirm('确定删除用户吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  }).then(() => {
+    // 保存到deleteParams中 push添加到集合最后
+    deleteParams.value.userIds.push(userId);
+    $api.deleteUser(deleteParams.value).then((res) => {
+      if (res) {
+        ElMessage.warning('删除成功');
+        pageUserList();
+      } else {
+        ElMessage.error('删除失败');
+      }
+      deleteParams.value.userIds = [];
+    });
+  });
+};
+// 多选框事件函数
+const handleSelectionChange = (userIds) => {
+  // map遍历userIds数组，返回一个新数组，新数组元素数量不变，元素内容为userId
+  deleteParams.value.userIds = userIds.map((item) => item.userId);
+};
+// 批量删除函数
+const handleDeleteBatch = () => {
+  if (deleteParams.value.userIds.length === 0) {
+    ElMessage.warning('未选择任何用户！');
+  } else {
+    ElMessageBox.confirm('确定批量删除用户吗？', '批量删除警示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'error',
+    }).then(() => {
+      $api.deleteUser(deleteParams.value).then((res) => {
+        if (res) {
+          ElMessage.warning('删除成功');
+          pageUserList();
+        } else {
+          ElMessage.error('删除失败');
+        }
+        deleteParams.value.userIds = [];
+      });
+    });
+  }
+};
 </script>
+
+<style scoped></style>
 ```
 
