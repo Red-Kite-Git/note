@@ -741,19 +741,6 @@ src\views\Welcome.vue ▼
 
 ### 3.创建登录页面组件
 
-src\api\api.js ▼
-
-```js
-import $request from "./../utils/request.js";
-
-export default {
-  // 添加一个登录的函数
-  login(params) {
-    return $request.post("/users/login", params);
-  },
-};
-```
-
 src\views\Login.vue ▼
 
 ```vue
@@ -762,32 +749,23 @@ src\views\Login.vue ▼
     <div class="modal">
       <h2 class="title">通用后台管理系统</h2>
       <!-- :rules 绑定rules属性 prop定义规则名 -->
-      <el-form
-        :model="users"
-        :rules="rules"
-        ref="loginForm"
-        @keyup.enter="handleLogin"
-      >
+      <el-form :model="users" :rules="rules" ref="loginForm" @keyup.enter="handleLogin()">
         <el-form-item label="用户名" prop="userName">
           <el-input
             placeholder="请输入用户名"
             type="text"
             v-model="users.userName"
-            prefix-icon="user"
-          />
+            prefix-icon="user" />
         </el-form-item>
         <el-form-item label="密&nbsp;&nbsp;&nbsp;&nbsp;码" prop="userPwd">
           <el-input
             placeholder="请输入密码"
             type="password"
             v-model="users.userPwd"
-            prefix-icon="lock"
-          />
+            prefix-icon="lock" />
         </el-form-item>
         <el-form-item>
-          <el-button class="btn-login" type="primary" @click="handleLogin">
-            登录
-          </el-button>
+          <el-button class="btn-login" type="primary" @click="handleLogin()"> 登录 </el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -795,29 +773,29 @@ src\views\Login.vue ▼
 </template>
 
 <script setup>
-import { inject, ref } from "vue";
-import { useRouter } from "vue-router";
+import { inject, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
-import { useStore } from "vuex";
+import { useStore } from 'vuex';
 const $store = useStore();
 
 const $router = useRouter();
-const $api = inject("api");
+const $api = inject('api');
 
 let users = ref({
-  userName: "",
-  userPwd: "",
+  userName: '',
+  userPwd: '',
 });
 // 定义规则数组
 const rules = ref({
   // required：是否必填项   message: 提示信息   trigger: 触发事件
   userName: [
-    { required: true, message: "用户名为必填项", trigger: "blur" },
-    { min: 3, max: 5, message: "用户名长度在3-5个字符之间", trigger: "blur" },
+    { required: true, message: '用户名为必填项', trigger: 'blur' },
+    { min: 3, max: 5, message: '用户名长度在3-5个字符之间', trigger: 'blur' },
   ],
   userPwd: [
-    { required: true, message: "密码为必填项", trigger: "blur" },
-    { min: 3, max: 10, message: "密码长度在3-10个字符之间", trigger: "blur" },
+    { required: true, message: '密码为必填项', trigger: 'blur' },
+    { min: 3, max: 10, message: '密码长度在3-10个字符之间', trigger: 'blur' },
   ],
 });
 
@@ -829,8 +807,8 @@ const handleLogin = () => {
       // 调用集中管理请求api中的登录接口
       $api.login(users.value).then((res) => {
         // 将登录用户信息存储到本地存储中
-        $store.commit("savaLoginUser", res);
-        $router.push("/home");
+        $store.commit('savaLoginUser', res);
+        $router.push('/home');
       });
     }
   });
@@ -915,7 +893,9 @@ src\components\TreeMenu.vue ▼
     >
       <!-- el标签定义的el-sub-menu需要<template #title></template>插槽 -->
       <template #title>
-        <el-icon><setting /></el-icon>
+        <el-icon>
+          <el-icon><component :is="item.icon" /></el-icon>
+        </el-icon>
         <span>{{ item.name }}</span>
       </template>
       <!-- 递归展示子菜单 -->
@@ -1172,7 +1152,7 @@ onMounted(() => {
 </style>
 ```
 
-### 添加获取用户路由信息和权限信息的接口
+### 添加页面所需接口
 
 src\api\api.js ▼
 
@@ -1181,7 +1161,11 @@ import $request from "./../utils/request.js";
 
 // 调用的后端接口函数 集中管理
 export default {
-  ......
+  //////////////////// 基础 //////////////////// 
+  // 添加一个登录的函数
+  login(params) {
+    return $request.post("/users/login", params);
+  },
   // 获取用户的路由信息和权限信息
   getUserInfo() {
     return $request.get("/users/info");
@@ -1190,6 +1174,47 @@ export default {
 ```
 
 ## 五、项目组件文件
+
+### 管理页面整体框架
+
+```vue
+<template>
+  <div class="user-mange">
+    <div class="query-form">
+      <!-- 条件查询部分 -->
+    </div>
+
+    <div class="base-table">
+      <div class="action">
+        <!-- 操作按钮部分 -->
+      </div>
+      <div>
+        <!-- 遍历结果集部分  -->
+      </div>
+      <div>
+        <!-- 分页跳转部分  -->
+      </div>
+    </div>
+
+    <div>
+      <!-- 新增/编辑/分配权限等对话框部分  -->
+    </div>
+  </div>
+</template>
+
+<script setup></script>
+```
+
+### 添加通用样式
+
+src\App.vue
+
+```vue
+<style>
+@import './assets/style/reset.css';
+@import './assets/style/index.scss';
+</style>
+```
 
 ### 配置用户列表页路由
 
@@ -1219,7 +1244,7 @@ const routes = [
 
 ### 1.用户管理页面
 
-#### 新增用到的接口
+#### 新增所需接口
 
 src\api\api.js ▼
 
@@ -1227,6 +1252,7 @@ src\api\api.js ▼
 import $request from './../utils/request.js';
 export default {
   ......
+  //////////////////// 用户管理页面 ////////////////////
   //查询部门集合
   getDepartmentList() {
     return $request.get('/depts/list');
@@ -1261,38 +1287,6 @@ export default {
 #### 用户管理页面
 
 src\views\User.vue ▼
-
-页面整体框架
-
-```vue
-<template>
-  <div class="user-mange">
-    <div class="query-form">
-      <!-- 条件查询部分 -->
-    </div>
-
-    <div class="base-table">
-      <div class="action">
-        <!-- 操作按钮部分 -->
-      </div>
-      <div>
-        <!-- 遍历结果集部分  -->
-      </div>
-      <div>
-        <!-- 分页跳转部分  -->
-      </div>
-    </div>
-
-    <div>
-      <!-- 新增/编辑用户对话框部分  -->
-    </div>
-  </div>
-</template>
-
-<script setup></script>
-```
-
-完整代码
 
 ```vue
 <template>
@@ -1348,18 +1342,19 @@ src\views\User.vue ▼
       </div>
       <!-- 分页遍历查询结果集  -->
       <div>
-        <!-- El提供的@selection-change 多选框事件 -->
+        <!-- 
+        El提供的@selection-change 多选框事件 
+        El提供的:data 数据源
+        -->
         <el-table :data="userList" @selection-change="handleSelectionChange">
           <!-- 复选框 -->
           <el-table-column type="selection" width="55" />
-          <!-- 表头 -->
           <el-table-column
             v-for="item in columns"
             :key="item.prop"
             :prop="item.prop"
             :label="item.label"
             :formatter="item.formatter" />
-          <!-- 表体 -->
           <el-table-column fixed="right" label="操作" min-width="120">
             <!-- #default="scope"语法糖等价Vue2的slot="default"或未命名插槽 能接收到表格行数据的row、column数据 -->
             <template #default="scope">
@@ -1680,5 +1675,301 @@ const handleDeleteBatch = () => {
 </script>
 
 <style scoped></style>
+```
+
+### 2.菜单管理页面
+
+#### 新增所需接口
+
+src\api\api.js ▼
+
+```js
+import $request from './../utils/request.js';
+export default {
+  ......
+  //////////////////// 菜单管理页面 ////////////////////
+  // 查询菜单集合
+  getMenuList(params) {
+    return $request.post('/menus/list', params);
+  },
+  // 删除菜单
+  deleteMenu(id) {
+    return $request.delete('/menus/delete/' + id);
+  },
+  // 新增菜单
+  saveMenu(form) {
+    return $request.post('/menus/save', form);
+  },
+  // 更新菜单
+  updateMenu(form) {
+    return $request.post('/menus/update', form);
+  },
+};
+```
+
+#### 菜单管理页面
+
+src\views\Menu.vue ▼
+
+```vue
+<template>
+  <div class="user-manage">
+    <!-- 查询条件部分 -->
+    <div class="query-form">
+      <el-form :inline="true" ref="queryForm" :model="queryParams">
+        <el-form-item label="菜单名称" prop="menuName">
+          <el-input placeholder="请输入菜单名称" v-model="queryParams.menuName" />
+        </el-form-item>
+        <el-form-item label="菜单编码" prop="menuCode">
+          <el-input placeholder="请输入菜单编码" v-model="queryParams.menuCode" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="selectMenuList()">查询</el-button>
+          <el-button type="info" @click="resetQueryForm()">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
+    <!-- 查询结果部分 -->
+    <div class="base-table">
+      <div class="action">
+        <el-button type="primary" @click="handleSave('Global')">新增</el-button>
+      </div>
+      <!-- El提供的表格-树形数据与懒加载 row-key属性、tree-props、default-expand-all -->
+      <div>
+        <el-table :data="menuList" row-key="id" :tree-props="{ children: 'children' }" border>
+          <el-table-column
+            v-for="item in columns"
+            :key="item.label"
+            :label="item.label"
+            :prop="item.prop"
+            :formatter="item.formatter" />
+          <el-table-column fixed="right" label="操作" min-width="120">
+            <template #default="scope">
+              <el-button type="warning" @click="handleEdit(scope.row)"> 编辑 </el-button>
+              <el-button type="danger" @click="handleDelete(scope.row.id)"> 删除 </el-button>
+              <el-button type="primary" @click="handleSave('Partial', scope.row.id)">
+                新增
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+    </div>
+    <!-- 新增/编辑对话框 -->
+    <div>
+      <el-dialog title="新增/编辑菜单" v-model="showDialog">
+        <el-form ref="dialogForm" :model="dialogFormData" :rules="rules">
+          <el-form-item label="菜单类型：" prop="menuType">
+            <el-radio-group v-model="dialogFormData.menuType">
+              <el-radio value="1">菜单</el-radio>
+              <el-radio value="2">按钮</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="父级菜单：" prop="parentId">
+            <!-- El的级联选择器 props.checkStrictly父子节点取消选中关联 -->
+            <el-cascader
+              clearable
+              style="width: 40%"
+              :options="menuList"
+              :props="{ checkStrictly: true, value: 'id', label: 'menuName' }"
+              v-model="dialogFormData.parentId"
+              placeholder="请选择父级菜单" />
+            <span style="color: red">无选择默认为顶级菜单</span>
+          </el-form-item>
+          <el-form-item label="菜单/按钮名称：" prop="menuName">
+            <el-input v-model="dialogFormData.menuName" placeholder="请输入菜单名称" />
+          </el-form-item>
+          <el-form-item label="菜单图标：" prop="icon" v-show="dialogFormData.menuType == '1'">
+            <el-select v-model="dialogFormData.icon" placeholder="请选择菜单图标">
+              <el-option value="House" label="House" />
+              <el-option value="Setting" label="Setting" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="路由地址：" prop="component" v-show="dialogFormData.menuType == '1'">
+            <el-input v-model="dialogFormData.component" placeholder="请输入路由地址" />
+          </el-form-item>
+          <el-form-item label="组件路径：" prop="path" v-show="dialogFormData.menuType == '1'">
+            <el-input v-model="dialogFormData.path" placeholder="请输入组件路径" />
+          </el-form-item>
+          <el-form-item label="权限标识：" prop="perm" v-show="dialogFormData.menuType == '2'">
+            <el-input v-model="dialogFormData.perm" placeholder="请输入权限标识" />
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <div class="dialog-footer">
+            <el-button type="success" @click="handleSubmit()"> 提交 </el-button>
+            <el-button type="info" @click="handleCancel()"> 取消 </el-button>
+          </div>
+        </template>
+      </el-dialog>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { getCurrentInstance, inject, onMounted, reactive, ref } from 'vue';
+
+const $api = inject('api');
+
+const { ctx } = getCurrentInstance();
+
+onMounted(() => {
+  selectMenuList();
+});
+
+//////////////////// 查询 ////////////////////
+let queryParams = reactive({});
+// 重置表单函数
+const resetQueryForm = () => {
+  ctx.$refs.queryForm.resetFields();
+};
+let menuList = ref([]);
+let columns = ref([
+  { label: '菜单名称', prop: 'menuName' },
+  {
+    label: '菜单类型',
+    prop: 'menuType',
+    formatter(row, column, value) {
+      return {
+        1: '菜单',
+        2: '按钮',
+      }[value];
+    },
+  },
+  { label: '菜单编码', prop: 'menuCode' },
+  { label: '权限标识', prop: 'perm' },
+  { label: '路由地址', prop: 'component' },
+  { label: '菜单图标', prop: 'icon' },
+]);
+
+const selectMenuList = () => {
+  $api.getMenuList(queryParams).then((res) => {
+    menuList.value = res;
+  });
+};
+
+//////////////////// 新增/编辑对话框 ////////////////////
+let showDialog = ref(false);
+let dialogAction = ref('');
+let dialogFormData = reactive({
+  menuType: '1',
+});
+// 前端表单校验规则
+const rules = reactive({
+  menuName: [
+    { required: true, message: '菜单名称不能为空', trigger: 'blur' },
+    { max: 10, message: '名称长度不能超过10个字符', trigger: ['change'] },
+  ],
+});
+// 对话框唤起函数
+const handleSave = (type, parentId) => {
+  dialogAction.value = 'save';
+  showDialog.value = true;
+  if (type == 'Global') {
+    //
+  } else if (type == 'Partial') {
+    dialogFormData.parentId = parentId;
+  }
+};
+const handleEdit = (row) => {
+  dialogAction.value = 'edit';
+  showDialog.value = true;
+  //ctx.$nextTick() 可以在DOM更新完成后再执行代码，确保获取到的是最新的DOM状态
+  ctx.$nextTick(() => {
+    // 与新增公用一个表单，通过El的#default获取原数据 Object.assign(拷贝对象, 原数据)
+    Object.assign(dialogFormData, row);
+  });
+};
+// 对话框取消函数
+const handleCancel = () => {
+  ctx.$refs.dialogForm.resetFields();
+  showDialog.value = false;
+};
+// 对话框确认函数
+const handleSubmit = () => {
+  ctx.$refs.dialogForm.validate((valid) => {
+    if (valid) {
+      // 如果选择了父级菜单，则获取父级菜单的id，否则设置为-1（数据库设计-1表示顶级菜单，没有父级菜单）
+      dialogFormData.parentId = !dialogFormData.parentId
+        ? -1
+        : dialogFormData.parentId.length > 0
+        ? dialogFormData.parentId[0]
+        : dialogFormData.parentId;
+      if (dialogAction.value === 'save') {
+        $api.saveMenu(dialogFormData).then((res) => {
+          console.log(dialogFormData);
+          if (res) {
+            ElMessage.success('操作成功');
+            handleCancel();
+          } else {
+            ElMessage.error('操作失败');
+          }
+          selectMenuList();
+        });
+      } else if (dialogAction.value === 'edit') {
+        $api.updateMenu(dialogFormData).then((res) => {
+          if (res) {
+            ElMessage.success('操作成功');
+            handleCancel();
+          } else {
+            ElMessage.error('操作失败');
+          }
+          selectMenuList();
+        });
+      }
+    }
+  });
+};
+
+//////////////////// 删除 ////////////////////
+const handleDelete = (id) => {
+  ElMessageBox.confirm('确定删除该菜单吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  }).then(() => {
+    $api.deleteMenu(id).then((res) => {
+      ElMessage.warning('删除成功');
+      selectMenuList();
+    });
+  });
+};
+</script>
+```
+
+### 3.角色管理页面
+
+#### 新增所需接口
+
+```js
+  //////////////////// 角色管理页面 ////////////////////
+  // 查询角色集合
+  getRoleList() {
+    return $request.get('/roles/list');
+  },
+  // 分页查询角色集合
+  pageRoleList(params) {
+    return $request.post('/roles/page', params);
+  },
+```
+
+src\api\api.js ▼
+
+```js
+import $request from './../utils/request.js';
+export default {
+  ......
+  //////////////////// 菜单管理页面 ////////////////////
+  
+};
+```
+
+#### 角色管理页面
+
+src\views\Role.vue ▼
+
+```
+
 ```
 

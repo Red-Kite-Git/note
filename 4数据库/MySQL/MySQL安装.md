@@ -1,10 +1,24 @@
-### 1、下载mysql服务端
+# MySQL安装
+
+## 一、MySQL简介
+
+[MySQL官网](https://dev.mysql.com/)
+
+
+
+
+
+## 二、下载mysql服务端
+
+### 1.下载解压
 
 官网下载链接：https://dev.mysql.com/downloads/mysql/5.7.html
 
-下载后，解压到D盘
+下载后，解压到 自己电脑的某个位置
 
-新建一个`my.ini`配置文件 ▼
+### 2.新建配置文件 
+
+my.ini ▼
 
 ```ini
 [mysql]
@@ -25,7 +39,7 @@ character-set-server=utf8
 default-storage-engine=INNODB
 ```
 
-### 2、MySql安装步骤
+### 3.初始化MySql服务
 
 `window+R`启动命令窗口，输入`cmd`，打开`cmd`窗口，输入`d:`进入到D盘，然后`cd MySQL\mysql-5.7.36-winx64\bin`，到对应的bin目录，执行命令，执行之后会生成data这个文件夹
 
@@ -64,7 +78,7 @@ alter user 'root'@'localhost' IDENTIFIED with mysql_native_password by 'root';
 
 
 
-### 3、遇到的问题
+### 4、可能遇到的问题
 
 执行mysqld install，出现The service already exists提示，那是因为之前安装过，不过没卸载完全，所以需要命令执行一下
 
@@ -93,3 +107,5 @@ http://download.microsoft.com/download/b/e/8/be8a5444-cdd8-4d3d-ae09-a0979b05aee
 **win7安装.net framework 4.6失败的解决方法**
 
 参考：http://www.dnxtc.net/zixun/WIN7yingyong/2017-11-09/1842.html
+
+## 三、SQLyog可视化操作

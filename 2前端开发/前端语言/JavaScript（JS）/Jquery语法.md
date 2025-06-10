@@ -2,7 +2,7 @@
 
 Jquery是对原生JS的封装，提供了许多快捷的语句与函数
 
-
+官网：[jQuery](https://jquery.com/)
 
 ## 一、选择器
 
