@@ -791,7 +791,7 @@ const rules = ref({
   // required：是否必填项   message: 提示信息   trigger: 触发事件
   userName: [
     { required: true, message: '用户名为必填项', trigger: 'blur' },
-    { min: 3, max: 5, message: '用户名长度在3-5个字符之间', trigger: 'blur' },
+    { min: 3, max: 10, message: '用户名长度在3-10个字符之间', trigger: 'blur' },
   ],
   userPwd: [
     { required: true, message: '密码为必填项', trigger: 'blur' },
@@ -972,13 +972,14 @@ src\views\Home.vue ▼
         <span>通用管理系统</span>
       </div>
       <!-- 菜单 -->
+      <!-- default-active	页面加载时默认激活菜单的 index -->
       <el-menu
         class="nav-menu"
         background-color="#001529"
-        :router="true"
         text-color="#fff"
-        :collapse="isCollapse"
-      >
+        :default-active="activeMenu"
+        :router="true"
+        :collapse="isCollapse">
         <!-- 调用菜单组件 -->
         <tree-menu :menus="menuTree" />
       </el-menu>
@@ -990,7 +991,7 @@ src\views\Home.vue ▼
         <div class="top-crumb-left">
           <div class="fold-menu" @click="toggleNav">
             <el-icon>
-              <Menu></Menu>
+              <Operation />
             </el-icon>
           </div>
           <div class="bread"><Breadcrumb /></div>
@@ -1005,15 +1006,9 @@ src\views\Home.vue ▼
             <span class="username-span"> {{ userName }} </span>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item command="userCenter">
-                  个人中心
-                </el-dropdown-item>
-                <el-dropdown-item command="updatePwd">
-                  修改密码
-                </el-dropdown-item>
-                <el-dropdown-item command="loginOut">
-                  退出登录
-                </el-dropdown-item>
+                <el-dropdown-item command="userCenter"> 个人中心 </el-dropdown-item>
+                <el-dropdown-item command="updatePwd"> 修改密码 </el-dropdown-item>
+                <el-dropdown-item command="loginOut"> 退出登录 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -1027,16 +1022,19 @@ src\views\Home.vue ▼
 </template>
 
 <script setup>
-import TreeMenu from "./../components/TreeMenu.vue";
-import Breadcrumb from "./../components/Breadcrumb.vue";
+import TreeMenu from './../components/TreeMenu.vue';
+import Breadcrumb from './../components/Breadcrumb.vue';
 
-import { inject, onMounted, ref } from "vue";
-import { ElMessage } from "element-plus";
-import { useStore } from "vuex";
-import { useRouter } from "vue-router";
+import { computed, inject, onMounted, ref } from 'vue';
+import { ElMessage } from 'element-plus';
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
 const $store = useStore();
 const $router = useRouter();
-const $api = inject("api");
+const $api = inject('api');
+
+// 使用computed计算属性来获取当前路由的路径
+const activeMenu = computed(() => $router.currentRoute.value.path);
 
 let isCollapse = ref(false);
 const toggleNav = () => {
@@ -1046,14 +1044,14 @@ const toggleNav = () => {
 let userName = $store.state.loginUser.userName;
 
 const handleCommand = (key) => {
-  if (key === "userCenter") {
-    ElMessage.info("个人中心");
-  } else if (key === "updatePwd") {
-    ElMessage.info("更新密码");
-  } else if (key === "loginOut") {
-    $store.commit("cleanLoginUser");
-    ElMessage.info("退出登录");
-    $router.push("/login");
+  if (key === 'userCenter') {
+    ElMessage.info('个人中心');
+  } else if (key === 'updatePwd') {
+    ElMessage.info('更新密码');
+  } else if (key === 'loginOut') {
+    $store.commit('cleanLoginUser');
+    ElMessage.info('退出登录');
+    $router.push('/login');
   }
 };
 
@@ -1076,7 +1074,7 @@ onMounted(() => {
     color: white;
     overflow-y: auto;
     overflow-x: hidden;
-    transition: width 0.5s; // 收缩展开过渡动画
+    transition: width 0.3s; // 收缩展开过渡动画
     .logo {
       display: flex;
       align-items: center;
@@ -1192,12 +1190,12 @@ export default {
         <!-- 遍历结果集部分  -->
       </div>
       <div>
-        <!-- 分页跳转部分  -->
+        <!-- 分页跳转部分（需要分页的话）  -->
       </div>
     </div>
 
     <div>
-      <!-- 新增/编辑/分配权限等对话框部分  -->
+      <!-- 新增/编辑/分配权限等 对话框部分  -->
     </div>
   </div>
 </template>
@@ -1216,7 +1214,7 @@ src\App.vue
 </style>
 ```
 
-### 配置用户列表页路由
+### 配置路由
 
 src\router\router.js ▼
 
@@ -1233,6 +1231,22 @@ const routes = [
         component: () => import("./../views/User.vue"),
         meta: {
           title: "用户管理",
+        },
+      },
+      {
+        path: '/system/menu',
+        name: 'menu',
+        component: () => import('./../views/Menu.vue'),
+        meta: {
+          title: '菜单管理',
+        },
+      },
+      {
+        path: '/system/role',
+        name: 'role',
+        component: () => import('./../views/Role.vue'),
+        meta: {
+          title: '角色管理',
         },
       },
     ],
@@ -1343,10 +1357,10 @@ src\views\User.vue ▼
       <!-- 分页遍历查询结果集  -->
       <div>
         <!-- 
-        El提供的@selection-change 多选框事件 
+        El提供的@selection-change 多选框事件
         El提供的:data 数据源
         -->
-        <el-table :data="userList" @selection-change="handleSelectionChange">
+        <el-table border :data="userList" @selection-change="handleSelectionChange">
           <!-- 复选框 -->
           <el-table-column type="selection" width="55" />
           <el-table-column
@@ -1374,7 +1388,8 @@ src\views\User.vue ▼
           layout="prev,pager,next"
           :page-size="pageParams.pageSize"
           :total="pageParams.totalCount"
-          @current-change="changePage"></el-pagination>
+          @current-change="changePage">
+        </el-pagination>
       </div>
     </div>
 
@@ -1519,18 +1534,14 @@ const resetForm = () => {
   //获取当前组件中ref值为queryForm的表单实例
   //调用Vue提供的resetFields方法（清空表单绑定的model中的prop）
   ctx.$refs.queryForm.resetFields();
+  pageUserList();
 };
 
-// 新增与编辑公用一个表单，通过dialogAction在表单处禁用另一种
+//////////////////// 新增/编辑对话框 ////////////////////
+// 新增与编辑公用一个表单，通过dialogAction标识当前对话框的类型
 let dialogAction = ref('');
-
-//////////////////// 新增用户 ////////////////////
-// 新增/编辑用户兑换框是否展示
+// 新增/编辑用户兑换框是否展示，默认不展示
 let showDialog = ref(false);
-const handleSave = () => {
-  dialogAction.value = 'add';
-  showDialog.value = true;
-};
 // 表单信息
 let dialogFormData = ref({
   state: 0,
@@ -1575,41 +1586,13 @@ const rules = ref({
     },
   ],
 });
-// 表单提交函数
-const handleSubmit = () => {
-  ctx.$refs.dialogForm.validate((valid) => {
-    if (valid) {
-      if (dialogAction.value == 'add') {
-        $api.saveUser(dialogFormData.value).then((res) => {
-          if (res) {
-            ElMessage.success('操作成功');
-            handleCancel();
-            pageUserList();
-          } else {
-            ElMessage.error('操作失败');
-          }
-        });
-      } else if (dialogAction.value == 'edit') {
-        $api.updateUser(dialogFormData.value).then((res) => {
-          if (res) {
-            ElMessage.success('操作成功');
-            handleCancel();
-            pageUserList();
-          } else {
-            ElMessage.error('操作失败');
-          }
-        });
-      }
-    }
-  });
+// 对话框唤起函数
+// 新增对话框
+const handleSave = () => {
+  dialogAction.value = 'add';
+  showDialog.value = true;
 };
-// 表单取消函数
-const handleCancel = () => {
-  ctx.$refs.dialogForm.resetFields();
-  showDialog.value = false;
-};
-
-//////////////////// 编辑用户 ////////////////////
+// 编辑对话框
 const handleEdit = (row) => {
   dialogAction.value = 'edit';
   showDialog.value = true;
@@ -1618,6 +1601,30 @@ const handleEdit = (row) => {
     // 与新增公用一个表单，通过El的#default获取原数据 Object.assign(拷贝对象, 原数据)
     Object.assign(dialogFormData.value, row);
   });
+};
+// 对话框提交函数
+const handleSubmit = () => {
+  ctx.$refs.dialogForm.validate((valid) => {
+    if (valid) {
+      if (dialogAction.value == 'add') {
+        $api.saveUser(dialogFormData.value).then((res) => {
+          res ? ElMessage.success('操作成功') : ElMessage.error('操作失败');
+          pageUserList();
+        });
+      } else if (dialogAction.value == 'edit') {
+        $api.updateUser(dialogFormData.value).then((res) => {
+          res ? ElMessage.success('操作成功') : ElMessage.error('操作失败');
+          pageUserList();
+        });
+      }
+      handleCancel();
+    }
+  });
+};
+// 对话框取消函数
+const handleCancel = () => {
+  ctx.$refs.dialogForm.resetFields();
+  showDialog.value = false;
 };
 
 //////////////////// 删除用户 ////////////////////
@@ -1635,12 +1642,7 @@ const handleDelete = (userId) => {
     // 保存到deleteParams中 push添加到集合最后
     deleteParams.value.userIds.push(userId);
     $api.deleteUser(deleteParams.value).then((res) => {
-      if (res) {
-        ElMessage.warning('删除成功');
-        pageUserList();
-      } else {
-        ElMessage.error('删除失败');
-      }
+      res ? ElMessage.success('删除成功') : ElMessage.error('删除失败');
       deleteParams.value.userIds = [];
     });
   });
@@ -1661,12 +1663,7 @@ const handleDeleteBatch = () => {
       type: 'error',
     }).then(() => {
       $api.deleteUser(deleteParams.value).then((res) => {
-        if (res) {
-          ElMessage.warning('删除成功');
-          pageUserList();
-        } else {
-          ElMessage.error('删除失败');
-        }
+        res ? ElMessage.success('删除成功') : ElMessage.error('删除失败');
         deleteParams.value.userIds = [];
       });
     });
@@ -1823,6 +1820,7 @@ let queryParams = reactive({});
 // 重置表单函数
 const resetQueryForm = () => {
   ctx.$refs.queryForm.resetFields();
+  selectMenuList();
 };
 let menuList = ref([]);
 let columns = ref([
@@ -1899,25 +1897,16 @@ const handleSubmit = () => {
       if (dialogAction.value === 'save') {
         $api.saveMenu(dialogFormData).then((res) => {
           console.log(dialogFormData);
-          if (res) {
-            ElMessage.success('操作成功');
-            handleCancel();
-          } else {
-            ElMessage.error('操作失败');
-          }
+          res ? ElMessage.success('操作成功') : ElMessage.error('操作失败');
           selectMenuList();
         });
       } else if (dialogAction.value === 'edit') {
         $api.updateMenu(dialogFormData).then((res) => {
-          if (res) {
-            ElMessage.success('操作成功');
-            handleCancel();
-          } else {
-            ElMessage.error('操作失败');
-          }
+          res ? ElMessage.success('操作成功') : ElMessage.error('操作失败');
           selectMenuList();
         });
       }
+      handleCancel();
     }
   });
 };
@@ -1960,8 +1949,35 @@ src\api\api.js ▼
 import $request from './../utils/request.js';
 export default {
   ......
-  //////////////////// 菜单管理页面 ////////////////////
-  
+  //////////////////// 角色管理页面 ////////////////////
+  // 查询角色集合
+  getRoleList() {
+    return $request.get('/roles/list');
+  },
+  // 分页查询角色集合
+  pageRoleList(params) {
+    return $request.post('/roles/page', params);
+  },
+  // 新增角色
+  saveRole(form) {
+    return $request.post('/roles/save', form);
+  },
+  // 更新角色
+  editRole(form) {
+    return $request.post('/roles/update', form);
+  },
+  // 删除角色
+  deleteRole(id) {
+    return $request.delete('/roles/delete/' + id);
+  },
+  // 查询角色拥有的菜单以及所有的菜单信息
+  getRoleMenu(id) {
+    return $request.get('/roles/all/menus/' + id);
+  },
+  // 更新角色对应的菜单
+  updateRoleMenu(params) {
+    return $request.post('/roles/menus/update', params);
+  },
 };
 ```
 
@@ -1969,7 +1985,179 @@ export default {
 
 src\views\Role.vue ▼
 
-```
+```vue
+<template>
+  <div class="user-manage">
+    <!-- 查询条件部分 -->
+    <div class="query-form">
+      <el-form :inline="true" ref="queryForm" :model="queryParams">
+        <el-form-item label="角色名称" prop="roleName">
+          <el-input placeholder="请输入角色名称" v-model="queryParams.roleName" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="selectRoleList()">查询</el-button>
+          <el-button type="info" @click="resetQueryForm()">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
+    <!-- 查询结果部分 -->
+    <div class="base-table">
+      <div class="action">
+        <el-button type="primary" @click="handleSave()">新增</el-button>
+      </div>
+      <!-- El提供的表格 -->
+      <div class="table-wrap">
+        <el-table :data="roleList" border>
+          <el-table-column
+            v-for="item in columns"
+            :key="item.label"
+            :label="item.label"
+            :prop="item.prop"
+            :formatter="item.formatter" />
+          <el-table-column fixed="right" label="操作" min-width="120">
+            <template #default="scope">
+              <el-button type="primary" @click="handleUpdate(scope.row)"> 分配权限 </el-button>
+              <el-button type="warning" @click="handleEdit(scope.row)"> 编辑角色 </el-button>
+              <el-button type="danger" @click="handleDelete(scope.row.id)"> 删除角色 </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      <!-- El提供的@current-change 点击换页事件 -->
+      <div class="pagination">
+        <el-pagination
+          layout="prev,pager,next"
+          :page-size="pageParams.pageSize"
+          :total="pageParams.totalCount">
+        </el-pagination>
+      </div>
+    </div>
+    <!-- 新增/编辑对话框 -->
+    <div class="dialog">
+      <el-dialog title="新增/编辑角色" v-model="showDialog">
+        <el-form :model="dialogFormData" :rules="rules" ref="dialogForm">
+          <el-form-item label="角色名称" prop="roleName">
+            <el-input v-model="dialogFormData.roleName" placeholder="请输入角色名称" />
+          </el-form-item>
+          <el-form-item label="角色备注" prop="remark">
+            <el-input
+              type="textarea"
+              v-model="dialogFormData.remark"
+              placeholder="请输入角色备注" />
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <div class="dialog-footer">
+            <el-button type="success" @click="handleSubmit()"> 确定 </el-button>
+            <el-button type="info" @click="handleCancel()"> 取消 </el-button>
+          </div>
+        </template>
+      </el-dialog>
+    </div>
+  </div>
+</template>
 
+<script setup>
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { getCurrentInstance, inject, onMounted, reactive, ref } from 'vue';
+
+const $api = inject('api');
+
+const { ctx } = getCurrentInstance();
+
+onMounted(() => {
+  selectRoleList();
+});
+
+//////////////////// 分页查询 ////////////////////
+let queryParams = reactive({
+  currentPage: 1,
+  pageSize: 5,
+  roleName: '',
+});
+let pageParams = reactive({
+  totalCount: 0,
+  pageSize: queryParams.pageSize,
+});
+// 重置表单函数
+const resetQueryForm = () => {
+  ctx.$refs.queryForm.resetFields();
+};
+let roleList = reactive([]);
+let columns = ref([
+  { label: '角色ID', prop: 'id' },
+  { label: '角色名称', prop: 'roleName' },
+  { label: '角色备注', prop: 'remark' },
+  { label: '创建时间', prop: 'creationDate' },
+]);
+
+const selectRoleList = () => {
+  $api.pageRoleList(queryParams).then((res) => {
+    // 方式一：追加数据（适用于分页加载，如页码递增时）
+    roleList.push(...res.currentPageRecords); // 使用展开运算符避免嵌套数组
+    // 方式二：直接覆盖数据（适用于刷新或重置页码时）
+    // roleList.splice(0, roleList.length, ...res.currentPageRecords);
+  });
+};
+
+//////////////////// 新增/编辑对话框 ////////////////////
+let showDialog = ref(false);
+let dialogAction = ref('');
+let dialogFormData = reactive({});
+// 前端表单校验规则
+const rules = reactive({
+  roleName: { required: true, message: '角色名称不能为空', trigger: 'blur' },
+  remark: { max: 50, message: '备注信息不能超出50个字符', trigger: 'change' },
+});
+// 对话框唤起函数
+const handleSave = () => {
+  dialogAction.value = 'save';
+  showDialog.value = true;
+};
+const handleEdit = (row) => {
+  dialogAction.value = 'edit';
+  showDialog.value = true;
+  ctx.$nextTick(() => {
+    Object.assign(dialogFormData, row);
+  });
+};
+// 对话框取消函数
+const handleCancel = () => {
+  ctx.$refs.dialogForm.resetFields();
+  showDialog.value = false;
+};
+// 对话框确认函数
+const handleSubmit = () => {
+  ctx.$refs.dialogForm.validate((valid) => {
+    if (valid) {
+      if (dialogAction.value === 'save') {
+        $api.saveRole(dialogFormData).then((res) => {
+          res ? ElMessage.success('操作成功') : ElMessage.error('操作失败');
+        });
+      } else if (dialogAction.value === 'edit') {
+        $api.editRole(dialogFormData).then((res) => {
+          res ? ElMessage.success('操作成功') : ElMessage.error('操作失败');
+        });
+      }
+      handleCancel();
+      selectRoleList();
+    }
+  });
+};
+
+//////////////////// 删除 ////////////////////
+const handleDelete = (id) => {
+  ElMessageBox.confirm('确定删除该菜单吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  }).then(() => {
+    $api.deleteRole(id).then((res) => {
+      ElMessage.warning('删除成功');
+      selectRoleList();
+    });
+  });
+};
+</script>
 ```
 
