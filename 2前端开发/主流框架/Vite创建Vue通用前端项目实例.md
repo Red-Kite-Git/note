@@ -904,7 +904,7 @@ src\components\TreeMenu.vue ▼
 
     <!-- 处理没有子菜单的项 -->
     <el-menu-item v-else-if="item.hide === false" :index="item.path">
-      <el-icon><setting /></el-icon>
+      <el-icon><component :is="item.icon" /></el-icon>
       <span>{{ item.name }}</span>
     </el-menu-item>
   </template>
@@ -1778,8 +1778,11 @@ src\views\Menu.vue ▼
           </el-form-item>
           <el-form-item label="菜单图标：" prop="icon" v-show="dialogFormData.menuType == '1'">
             <el-select v-model="dialogFormData.icon" placeholder="请选择菜单图标">
-              <el-option value="House" label="House" />
-              <el-option value="Setting" label="Setting" />
+              <el-option
+                v-for="item in iconList"
+                :key="item"
+                :label="item.label"
+                :value="item.value" />
             </el-select>
           </el-form-item>
           <el-form-item label="路由地址：" prop="component" v-show="dialogFormData.menuType == '1'">
@@ -1853,6 +1856,19 @@ let dialogAction = ref('');
 let dialogFormData = reactive({
   menuType: '1',
 });
+// 图标下拉框列表
+const iconList = [
+  { value: 'House', label: 'House' },
+  { value: 'Setting', label: 'Setting' },
+  { value: 'Menu', label: 'Menu' },
+  { value: 'Tools', label: 'Tools' },
+  { value: 'UserFilled', label: 'User' },
+  { value: 'Grid', label: 'Grid' },
+  { value: 'Avatar', label: 'Role' },
+  { value: 'OfficeBuilding', label: 'Department' },
+  { value: 'Expand', label: 'Procedure' },
+  { value: 'DataLine', label: 'DataLine' },
+];
 // 前端表单校验规则
 const rules = reactive({
   menuName: [
