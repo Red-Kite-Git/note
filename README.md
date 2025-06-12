@@ -1,6 +1,11 @@
 # note
 
-[Red-Kite-Git/note](https://github.com/Red-Kite-Git/note)
+我将在两个仓库同时更新
+
+- [Gitee](https://gitee.com/red_Kite/note)
+- [GitHub](https://github.com/Red-Kite-Git/note)
+
+
 
 本人从零基础小白一路学习编程的笔记！
 
