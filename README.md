@@ -1,8 +1,8 @@
 # note
 
-我将在两个仓库同时更新
+我将在两个仓库更新我的笔记
 
-- [Gitee](https://gitee.com/red_Kite/note)
+- ★优先★	[Gitee](https://gitee.com/red_Kite/note)
 - [GitHub](https://github.com/Red-Kite-Git/note)
 
 
